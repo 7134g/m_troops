@@ -12,6 +12,12 @@ def url_open(url):
 
     return html
 
+def cbk(a,b,c):
+    per = 100.0 * a * b / c
+    if per > 100:
+        per = 100
+    print('%.2f%%' % per)
+    print('下载完成')
 
 def page_num(url):
     #获取帖子页数
@@ -24,32 +30,25 @@ def page_num(url):
 def get_img(url):
     #打开贴吧每一页
     for i in range(1,page_num(url)):
-        print(i)
         urls = url + '?pn={}'.format(i)
-        html = url_open(urls)
+        html = url_open(url)
         p = r'<img class="BDE_Image" src="([^"]+\.jpg)"'
         imglist = re.findall(p,html)
     
         #保存当前页全部图片
-        temp = 1
         for each in imglist:
             filename = each.split('/')[-1]
-            urllib.request.urlretrieve(each,filename)
-            print('第{}张图片下载完成'.format(temp))
-            temp += 1
+            urllib.request.urlretrieve(each,filename,cbk)
         time.sleep(1)
-        print('第{}页全部下完'.format(i))
 
-## Administrator
 def main():
-    tt = time.time()
-    os.makedirs(r'C:\Users\xincheng\Desktop\meitu')
-    os.chdir(r'C:\Users\xincheng\Desktop\meitu')
+    path = os.getcwd()+'meitu'
+    os.makedirs(path)
+    os.chdir(path)
     #'https://tieba.baidu.com/p/3048618362'
     url = input('请输入贴吧帖子网址：')
     get_img(url)
-    flie.close()
-    print('总共用时：{}'.format(time.time()-tt))
+
 
 if __name__ == '__main__':
     main()

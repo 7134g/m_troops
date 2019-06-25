@@ -58,9 +58,9 @@ def get_url(code=0,ips=[]):
         hz_url = "http://www.xxxxx.com/xxxx%s" % num   # 某投票网站的地址，这里不用真实的域名
         hz_r = requests.get(hz_url,headers=headers2,proxies=proxies)
     except requests.exceptions.ConnectionError:
-        print "ConnectionError"
+        print("ConnectionError")
         if not ips:
-            print "not ip"
+            print("not ip")
             sys.exit()
         # 删除不可用的代理IP
         if ip in ips:
@@ -69,9 +69,9 @@ def get_url(code=0,ips=[]):
         get_url(code,ips)
     else:
         date = datetime.datetime.now().strftime('%H:%M:%S')
-        print u"第%s次 [%s] [%s]：投票%s (剩余可用代理IP数：%s)" % (code,date,ip,hz_r.text,len(ips))
+        print(u"第%s次 [%s] [%s]：投票%s (剩余可用代理IP数：%s)" % (code,date,ip,hz_r.text,len(ips)))
 ips = []
-for i in xrange(6000):
+for i in range(6000):
     # 每隔1000次重新获取一次最新的代理IP，每次可获取最新的100个代理IP
     if i % 1000 == 0:
         ips.extend(get_ip())

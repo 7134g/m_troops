@@ -1,10 +1,7 @@
 import time
 import os
 from urllib import request
-from multiprocessing import  Pool
 from lxml import etree
-from concurrent.futures import ThreadPoolExecutor
-
 
 def get_html(url):
     headers = {'User-Agent': r'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:63.0) Gecko/20100101 Firefox/63.0',
@@ -64,9 +61,6 @@ if __name__ == '__main__':
     star_url = 'http://www.jinyongwang.com/book/'
     html_1 = get_html(star_url)
     urls = html_1.xpath('//ul[@class="list"]/li/p[@class="title"]/a/@href')
-    p = ThreadPoolExecutor(max_workers=20)  #线程池的个数不超过CPU的5倍
-    for i in urls:
-        p.submit(main,i)
-    p.shutdown()
+    main(urls)
     end_time = time.time()
     print(end_time-start_time)

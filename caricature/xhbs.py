@@ -40,7 +40,7 @@ def deal_task(index, task):
     print(currentThread())
     page_count = task['end_num']
     page_name = task['chapter_name']
-    path = "../download/dldl/{}".format(page_name)
+    path = "../download/xhbs/{}".format(page_name)
     if os.path.exists(path):
         shutil.rmtree(path)
     os.makedirs(path)

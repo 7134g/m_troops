@@ -26,10 +26,6 @@ def get_task():
     response_json = response.json()
     tasks = response_json['data']['comic_chapter']
 
-    # pool = ThreadPoolExecutor(max_workers=2)
-    # for task in tasks:
-    #     pool.submit(deal_task,task)
-    # pool.shutdown()
 
     with ProcessPoolExecutor(max_workers=2) as pool:
         for index,task in enumerate(tasks[::-1]):

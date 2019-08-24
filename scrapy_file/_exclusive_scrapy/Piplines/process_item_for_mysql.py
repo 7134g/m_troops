@@ -36,7 +36,7 @@ class MySQLTwistedPipline(object):
     def __init__(self,dbpool):
         self.dbpool = dbpool
 
-    @classmethon
+    @classmethod
     def from_setting(cls,setting):
         dbparms = dict(
             host = setting["MYSQL_HOST"],
@@ -48,8 +48,8 @@ class MySQLTwistedPipline(object):
             use_unicode = True
             )
         # args普通参数,*args可变参数(变元组),**kwargs可变参数(变字典)
-        self.dbpool = adbapi.ConnectionPool("MySQLdb",**dbparms)
-    return cls(dbpool)
+        dbpool = adbapi.ConnectionPool("MySQLdb",**dbparms)
+        return cls(dbpool)
 
     def process_item(self,item,spider):
         # 使用twisted将mysql插入变成异步执行

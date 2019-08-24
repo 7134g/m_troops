@@ -13,6 +13,9 @@ def myreadlines(f, newline):
         buf += chunk
         
 
-with open("contain.txt") as f:
-    for line in myreadlines(f, r"\n"):
-        print(line)
+if __name__ == '__main__':
+    # 文件中的分隔符
+    flite = r"\n"
+    with open("contain.txt") as f:
+        for line in myreadlines(f, flite):
+            print(line)

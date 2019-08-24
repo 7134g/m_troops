@@ -6,7 +6,7 @@ def process_item():
     # db=数据库位置，port=端口号， host=ip地址
     rediscli = redis.Redis(host="127.0.0.1",port=6379, db =0)
     
-    mongocli = pymongo.MongoClient(host"127.0.0.1",post=27017)
+    mongocli = pymongo.MongoClient(host="127.0.0.1",post=27017)
 
 
     dbname = mongocli['数据库名称']

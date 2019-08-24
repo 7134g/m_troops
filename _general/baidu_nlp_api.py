@@ -6,7 +6,7 @@ import traceback
 import time
 import json
 
-from Com import baidu_id_secret
+from nlp_id import id_secret_list
 # importlib.reload(baidu_id_secret)
 
 
@@ -16,7 +16,7 @@ class BaiduNLP(object):
 
     def get_id_secret(self):
         # todo 获取 client_id 和 client_secret
-        id_secret = choice(baidu_id_secret.id_secret_list)
+        id_secret = choice(id_secret_list)
         client_id = id_secret['client_id']
         client_secret = id_secret['client_secret']
         return client_id, client_secret
@@ -83,7 +83,7 @@ class BaiduNLP(object):
 def generate_access_token_list():
     access_token_list = []
     bf = BaiduNLP()
-    for id_secret in baidu_id_secret.id_secret_list:
+    for id_secret in id_secret_list:
         client_id = id_secret['client_id']
         client_secret = id_secret['client_secret']
 

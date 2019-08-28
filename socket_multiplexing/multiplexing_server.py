@@ -1,5 +1,12 @@
 import socket
+from selectors import DefaultSelector
 from urllib.parse import urlparse
+
+selector = DefaultSelector()
+
+
+
+
 
 class Request:
     def __init__(self, headers: dict):

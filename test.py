@@ -22,7 +22,9 @@ def get_one_page(page):
 
     url = base_url + urlencode(parm1)
     try:
+        print("start")
         response = requests.get(url,headers=headers)
+        print("end")
         if response.status_code == 200:
             return response.json()
         return None
@@ -56,13 +58,25 @@ def parse_page(json):
             yield weibo
 def parse_fans(json):
     if json:
-        items = json.get('data').get('cards')
-        for a in items:
-            fans = {}
-            fans['ID'] = a.get('buttons')
-            fans['昵称'] = a.get('screen_name')
-            fans['他的粉丝数'] = a.get('desc2')
-            yield fans
+        items = json.get("data").get("cards")
+        for item in items:
+            card_group = item.get("card_group")
+            for card in card_group:
+                fans = {}
+                fans['ID'] = card.get("itemid")
+                fans['scheme'] = card.get("scheme")
+                print(fans)
+
+
+
+    # if json:
+    #     items = json.get('data').get('cards')
+    #     for a in items:
+    #         fans = {}
+    #         fans['ID'] = a.get('buttons')
+    #         fans['昵称'] = a.get('screen_name')
+    #         fans['他的粉丝数'] = a.get('desc2')
+    #         yield fans
 
 
 
@@ -83,3 +97,4 @@ if __name__=='__main__':
         for result in results:
             print(result)
             write_to_file(result)
+

@@ -12,15 +12,15 @@
 2. web
     + Django
     + flask
-3. 数据库
+3. 存储
     + sqlalchemy
+    + pymysql / mysqlconnector
     + redis
-    + pymysql
+    + mongodb
 
 ## 异步async/gevent
 1. 爬虫
     + aiohttp
-    + aiofiles
     + pypeteer
     + scrapy
     + gevent
@@ -29,23 +29,32 @@
     + tornado
     + sanic
 
-3. 数据库
+3. 存储
+    + aiofiles
     + aioredis
     + aiomysql
     + aiopg
+    + motor
 
 ## 多线程
-+ threading
-+ concurrent
-
-
+    threading
+    from concurrent.futures import ThreadPoolExecutor
 
 ## 多进程
-+ multiprocessing
-+ concurrent
+    multiprocessing
+    from concurrent.futures import ProcessPoolExecutor
 
+## Socket
+    Socket + select
+    Socket + epoll
 
-
+## 工具
+1. 消息队列
+    + kafka
+    
+2. 容器
+    + k8s
+    + docker
 
 
 ## ========== miscellany =========

@@ -382,8 +382,6 @@ def main_ctrl(params, logger):
 if __name__ == '__main__':
     import os, psutil
     import logmanage
-
-
     process = psutil.Process(os.getpid())
     print('Used Memory:', process.memory_info().rss / 1024 / 1024, 'MB')
     logger = logmanage.get_log("我是测试携程占座日志")

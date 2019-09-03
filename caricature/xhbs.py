@@ -29,7 +29,7 @@ def get_task():
     #     pool.submit(deal_task,task)
     # pool.shutdown()
 
-    with ProcessPoolExecutor(max_workers=2) as pool:
+    with ProcessPoolExecutor() as pool:
         for index,task in enumerate(tasks[::-1]):
             pool.submit(deal_task, index, task)
 

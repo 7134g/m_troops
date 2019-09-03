@@ -5,7 +5,9 @@ from concurrent.futures import ProcessPoolExecutor,ThreadPoolExecutor
 from threading import currentThread
 import traceback
 from PIL import Image
+from urllib3.exceptions import InsecureRequestWarning
 
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 def save_image(input_name):
     im = Image.open(input_name)

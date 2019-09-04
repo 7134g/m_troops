@@ -23,6 +23,6 @@ print('TIME: {}'.format(time.time() - start))
 
 for i in range(10):#协程开启十万个
     asyncio.run_coroutine_threadsafe(do_some_work(i*10), new_loop)
-
+t.join() # 阻塞主线程
 for i in range(10,20):#协程开启十万个
     asyncio.run_coroutine_threadsafe(do_some_work(i*10), new_loop)

@@ -6,8 +6,8 @@ class Server:
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind(('0.0.0.0', 8000))
         self.server.listen(1)
-
-
+    
+    
     def start_new_socket(self, sock, addr):
         try:
             while True:
@@ -24,8 +24,8 @@ class Server:
         except ConnectionResetError:
             print('断开连接')
             pass
-
-
+    
+    
     def server_sock(self):
         print("开始监听")
         while True:

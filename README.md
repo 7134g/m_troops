@@ -24,6 +24,10 @@
     + pypeteer
     + scrapy
     + gevent
+    + multiprocessing
+    + threading
+    + ProcessPoolExecutor/ThreadPoolExecutor
+    + Socket + select(epoll)
 
 2. web
     + tornado
@@ -36,17 +40,6 @@
     + aiopg
     + motor
 
-## 多线程
-    threading
-    from concurrent.futures import ThreadPoolExecutor
-
-## 多进程
-    multiprocessing
-    from concurrent.futures import ProcessPoolExecutor
-
-## Socket
-    Socket + select
-    Socket + epoll
 
 ## 工具
 1. 消息队列
@@ -91,11 +84,12 @@
 
 ## socket_multiplexing
 + socket_spider io多路复用爬虫
++ socket_server 多线程socket
 
 ## sql_async
-异步
+异步读取数据库
 ## sql_sqlalchemy
-同步
+同步读写数据库
 
 ## scrapy_file
 略

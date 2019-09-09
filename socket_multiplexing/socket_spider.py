@@ -16,15 +16,16 @@ def timer(func):
 
 
 class Fecher:
-    def __init__(self,headers = None):
+    def __init__(self,session):
+        self.session = session
         self.host = ''
         self.path = ''
         self.data = b''
         # self.client = ''
-        self.headers = headers
+        self.headers = self.session.headers
 
     def connected(self, key):
-        selector.unregister(key.fd)
+        self.session.selector.unregister(key.fd)
 
         request_contain = ''
         if self.headers:
@@ -37,22 +38,21 @@ class Fecher:
 
         self.client.send(send_data)
 
-        selector.register(self.client.fileno(), EVENT_READ, self.readable)
+        self.session.selector.register(self.client.fileno(), EVENT_READ, self.readable)
 
     def readable(self, key):
         temp = self.client.recv(1024)
         if temp:
             self.data += temp
         else:
-            selector.unregister(key.fd)
+            self.session.selector.unregister(key.fd)
             data = self.data.decode('utf8')
             html_data = data.split('\r\n\r\n')
             print(html_data)
             self.client.close()
-            urls.remove(self.spider_url)
-            if not urls:
-                global stop
-                stop = True
+            self.session.urls.remove(self.spider_url)
+            if not self.session.urls:
+                self.session.stop = True
 
     def get(self, url):
         self.spider_url = url
@@ -71,35 +71,40 @@ class Fecher:
             pass
 
         # 注册文件描述符
-        selector.register(self.client.fileno(), EVENT_WRITE, self.connected)
+        self.session.selector.register(self.client.fileno(), EVENT_WRITE, self.connected)
 
 
-def creat_loop():
-    while not stop:
-        ready = selector.select()
-        for key, mask in ready:
-            call_back = key.data
-            call_back(key)
 
 
-@timer
-def main():
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36",
-        "Connection": "close",
-    }
+class Spider:
+    def __init__(self):
+        self.selector = DefaultSelector()
+        self.urls = []
+        self.stop = False
+        self.headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36",
+            "Connection": "close",
+        }
 
-    for index in range(10):
-        url = 'http://shop.projectsedu.com/goods/{}/'.format(index)
-        urls.append(url)
-        feture = Fecher(headers=headers)
-        feture.get(url)
-    creat_loop()
+    def creat_loop(self):
+        while not self.stop:
+            ready = self.selector.select()
+            for key, mask in ready:
+                call_back = key.data
+                call_back(key)
+
+    @timer
+    def main(self):
+        for index in range(10):
+            url = 'http://shop.projectsedu.com/goods/{}/'.format(index)
+            self.urls.append(url)
+            feture = Fecher(self)
+            feture.get(url)
+        self.creat_loop()
 
 
-selector = DefaultSelector()
-urls = []
-stop = False
+
 
 if __name__ == '__main__':
-    main()
+    s = Spider()
+    s.main()

@@ -38,7 +38,7 @@ def run():
                 dictT.update({first_row[i]:cell})
             print(dictT)
             """
-            ('WANG/CHEN','男','中国','EG5065964','1971/01/04','2029/06/14','中国')
+            ('LAO/WANG','男','中国','EG888888','1971/01/04','2029/06/14','中国')
             """
             cursor.execute("INSERT INTO aaaaa(surnames, gender, country, passport, born, passport_time, issue) values({0},{1},{2},{3},{4},{5},{6})".format(
                 dictT["surnames"],

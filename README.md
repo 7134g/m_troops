@@ -2,7 +2,7 @@
 ##### 各种网站的爬虫，缓慢更新中
 ##### 少量工具
 
-##====== 使用的库，如下 ======
+##====== py使用的库，如下 ======
 
 ## py同步
     urllib requests selenium
@@ -14,7 +14,9 @@
     tornado sanic
     aiofiles aioredis aiomysql aiopg motor
 
-## go
+##====== go使用的库，如下 ======
+## go同步
+## go异步
 
 ## 工具
 1. 消息队列

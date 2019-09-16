@@ -4,42 +4,17 @@
 
 ##====== 使用的库，如下 ======
 
-## 同步
-1. 爬虫
-    + urllib
-    + requests
-    + selenium
-2. web
-    + Django
-    + flask
-3. 存储
-    + sqlalchemy
-    + pymysql / mysqlconnector
-    + redis
-    + mongodb
+## py同步
+    urllib requests selenium
+    Django flask sqlalchemy
+    pymysql / mysqlconnector redis mongodb
 
-## 异步async/gevent
-1. 爬虫
-    + aiohttp
-    + pypeteer
-    + scrapy
-    + gevent
-    + multiprocessing
-    + threading
-    + ProcessPoolExecutor/ThreadPoolExecutor
-    + Socket + select(epoll)
+## py异步
+    aiohttp pypeteer scrapy gevent multiprocessing threading ProcessPoolExecutor/ThreadPoolExecutor Socket+select(epoll)
+    tornado sanic
+    aiofiles aioredis aiomysql aiopg motor
 
-2. web
-    + tornado
-    + sanic
-
-3. 存储
-    + aiofiles
-    + aioredis
-    + aiomysql
-    + aiopg
-    + motor
-
+## go
 
 ## 工具
 1. 消息队列

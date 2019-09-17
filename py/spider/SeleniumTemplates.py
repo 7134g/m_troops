@@ -21,7 +21,7 @@ class SeleniumDriver:
         # PROXY_IP = get_proxy()
         # PROXY_IP = proxyclient.get_ip()
         # self.options.add_argument('--proxy-server=http://{}'.format(PROXY_IP))
-        driver = Chrome(executable_path="D:/python/Scripts/chromedriver.exe", chrome_options=self.options)
+        driver = Chrome(executable_path="./chromedriver.exe", chrome_options=self.options)
         return driver
 
     # selenium3.141
@@ -33,7 +33,7 @@ class SeleniumDriver:
         options.add_argument('--disable-gpu')  # 禁用GPU加速
         options.set_preference('permissions.default.image', 2)  # 禁止加载图片
         options.add_argument('--window-size=1280,800')  # 设置窗口大小
-        browser = webdriver.Firefox(executable_path='D:/python/Scripts/geckodriver.exe',
+        browser = webdriver.Firefox(executable_path='./geckodriver.exe',
                                     firefox_options=options)
         return browser
 
@@ -50,5 +50,6 @@ class SeleniumDriver:
             # '--proxy-type=http',  # 代理类型
             '--ignore-ssl-errors=true',
         ]
-        driver = PhantomJS(desired_capabilities=dcap, service_args=SERVICE_ARGS, service_log_path='./log/ghostdriver.log')
+        driver = PhantomJS(executable_path='./geckodriver.exe', desired_capabilities=dcap,
+                           service_args=SERVICE_ARGS, service_log_path='./log/ghostdriver.log')
         return driver

@@ -1,6 +1,4 @@
-# mySpiderAll
-##### 各种网站的爬虫，缓慢更新中
-##### 少量工具
+# my Spider All tools and templates
 
 ##====== py使用的库，如下 ======
 

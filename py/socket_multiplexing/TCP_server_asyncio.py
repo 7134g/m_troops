@@ -1,5 +1,7 @@
 import socket
 import threading
+import asyncio
+import platform
 
 class Server:
     def __init__(self):
@@ -8,8 +10,9 @@ class Server:
         self.server.listen(1)
     
     
-    def start_new_socket(self, sock, addr):
+    async def start_new_socket(self, sock, addr):
         try:
+
             while True:
                 data = str(sock.recv(1024), encoding="utf8")
                 if 'close' in data:
@@ -25,14 +28,23 @@ class Server:
             print('断开连接')
             pass
     
-    
+    def start_loop(self,loop):
+        asyncio.set_event_loop(loop)
+        loop.run_forever()
+
     def server_sock(self):
         print("开始监听")
+        if 'Win' in str(platform.architecture()):
+            loop = asyncio.ProactorEventLoop()
+        else:
+            import uvloop
+            loop = uvloop.new_event_loop()
+        threading.Thread(target=self.start_loop, args=(loop,)).start()
         while True:
             sock, addr = self.server.accept()
-            print('建立连接')
-            client_thead = threading.Thread(target=self.start_new_socket,args=(sock,addr))
-            client_thead.start()
+            print('开始建立连接')
+            asyncio.run_coroutine_threadsafe(self.start_new_socket(sock, addr), loop)
+
 
 
 if __name__ == '__main__':

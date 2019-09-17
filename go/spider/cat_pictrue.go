@@ -24,7 +24,7 @@ func download(ch chan int)  {
 	imageByte, _ := ioutil.ReadAll(resp.Body)
 
 
-	filname := "D:\\_document\\Go\\_programe\\test1\\main\\img\\" + strconv.Itoa(int(time.Now().UnixNano())) + ".jpg"
+	filname := "D:\\_document\\Go\\_programe\\test1\\main\\download\\" + strconv.Itoa(int(time.Now().UnixNano())) + ".jpg"
 	err = ioutil.WriteFile(filname, imageByte, 0644)
 	ch <- 1
 	if err == nil{

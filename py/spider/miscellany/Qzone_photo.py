@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from queue import Queue
-from urllib import parse,request
+from urllib import parse, request
 from math import ceil
 from http import cookiejar
 import time
@@ -13,49 +13,110 @@ import json
 import re
 import threading
 
-#登录参数之一
-appid = "15000101"
 
+# 线程池管理
+class ThreadPoolMgr:
+    def __init__(self, work_queue, fold, thread_num=5):  # thread_num 线程数量
+        self.threads = []
+        self.work_queue = work_queue
+        self.fold = fold
+        self.init_threadpool(thread_num)
+
+    def init_threadpool(self, thread_num):  # 创建线程
+        for i in range(thread_num):
+            self.threads.append(Mythread(self.work_queue, self.fold))
+
+    def wait_allcomplete(self):  # 等待线程结束
+        for item in self.threads:
+            if item.isAlive():
+                item.join()
+
+
+# 多线程下载
+class Mythread(threading.Thread):
+    def __init__(self, work_queue, fold):
+        threading.Thread.__init__(self)
+        self.work_queue = work_queue
+        self.fold = fold
+        if not os.path.isdir(self.fold):  # 判 断文件夹是否存在，不存在则创建文件夹
+            os.makedirs(self.fold)
+        if os.path.isdir(self.fold):  # 如果文件夹存在，则启动线程
+            global num  # 使用全局变量num
+            num = 1
+            self.start()
+
+    def run(self):
+        global lock
+        global num
+        while not self.work_queue.empty():  # 队列非空时，一直循环
+            url = self.work_queue.get()  # 取出一条数据
+            try:
+                try:
+                    r = request.urlopen(url["url"], timeout=60)  # 下载图片，超时为60秒
+                except Exception as e:
+                    print(e)
+                    r = request.urlopen(url["url"], timeout=120)  # 如果超时，再次下载，超时为120秒
+
+                if 'Content-Type' in r.info():
+                    file_name = os.path.join(self.fold, replace(
+                        url["name"] + "." + r.info()['Content-Type'].split('image/')[
+                            1]))  # 根据查看返回的“Content-Type”来判断图片格式，然后生成保存路径
+                    if lock.acquire():  # 线程同步
+                        print("开始下载第" + str(num) + "张照片")
+                        if os.path.exists(file_name):
+                            # 图片名称若存在，则重命名图片名称
+                            file_name = os.path.join(self.fold, replace(
+                                "重命名_图片_" + str(num) + "." + r.info()['Content-Type'].split('image/')[1]))
+                        num = num + 1
+                        lock.release()
+                    f = open(file_name, 'wb')
+                    f.write(r.read())
+                    f.close()
+
+            except Exception as e:
+                print(url["url"], "：下载超时！", e)
+
+
+# 登录参数之一
+appid = "15000101"
 num = 1
 queue = Queue()
 lock = threading.Lock()
-
-#默认协议头
+# 默认协议头
 DefaultHeaders = {
-            "Accept":"*/*",
-            "User-Agent":"Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 2.0.50727; .NET4.0C; .NET4.0E)",
-            "Accept-Language":"zh-cn",
-            "Accept-Encoding":"gzip;deflate",
-            "Connection":"keep-alive",
-            "Referer":"http://qzone.qq.com"
+    "Accept": "*/*",
+    "User-Agent": "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 2.0.50727; .NET4.0C; .NET4.0E)",
+    "Accept-Language": "zh-cn",
+    "Accept-Encoding": "gzip;deflate",
+    "Connection": "keep-alive",
+    "Referer": "http://qzone.qq.com"
 }
-
-#设置自动处理cookies
+# 设置自动处理cookies
 cj = cookiejar.LWPCookieJar()
 cookies = request.HTTPCookieProcessor(cj)
-opener  = request.build_opener(cookies)
+opener = request.build_opener(cookies)
 
-#密码输入，cmd命令行下运行显示*号
+
+# 密码输入，cmd命令行下运行显示*号
 def pwd_input():
     chars = []
     while True:
         try:
-            newChar = msvcrt.getch().decode(encoding="utf-8")
+            new_char = msvcrt.getch().decode(encoding="utf-8")
         except:
             return input("【温馨提醒：当前未在cmd命令行下运行，密码输入无法隐藏】:\n")
-        if newChar in "\r\n":
+        if new_char in "\r\n":
              break
-        elif newChar == "\b":
+        elif new_char == "\b":
              if chars:
                  del chars[-1]
                  msvcrt.putch("\b".encode(encoding="utf-8"))
                  msvcrt.putch( " ".encode(encoding="utf-8"))
                  msvcrt.putch("\b".encode(encoding="utf-8"))
         else:
-            chars.append(newChar)
+            chars.append(new_char)
             msvcrt.putch("*".encode(encoding="utf-8"))
     return ("".join(chars) )
-
 
 
 #QQ空间GTK算法
@@ -74,7 +135,7 @@ def GetCookie(name):
             return cookie.value
 
 #GET访问
-def Http(url,charset="utf-8",headers=DefaultHeaders):
+def Http(url, charset="utf-8", headers=DefaultHeaders):
     rr = request.Request(url=url, headers=headers)
     with opener.open(rr) as fp:
         if fp.info().get("Content-Encoding") == 'gzip':
@@ -85,7 +146,7 @@ def Http(url,charset="utf-8",headers=DefaultHeaders):
     return res
 
 #POST访问
-def Post(url,postdata,charset="utf-8",headers=DefaultHeaders):
+def Post(url, postdata, charset="utf-8", headers=DefaultHeaders):
     if postdata:
         postdata = parse.urlencode(postdata).encode("utf-8")
     rr = request.Request(url=url,headers=headers,data=postdata)
@@ -111,65 +172,7 @@ def replace(filename):
     p = re.compile(r'\\|\/|\:|\*|\?|\<|>|\"|\|')
     return p.sub(r' ', filename)
 
-#线程池管理
-class ThreadPoolMgr():
-    def __init__(self,work_queue,fold,thread_num=5): #thread_num 线程数量
-        self.threads=[]
-        self.work_queue=work_queue
-        self.fold=fold
-        self.init_threadpool(thread_num)
-
-    def init_threadpool(self,thread_num): #创建线程
-        for i in range(thread_num):
-            self.threads.append(Mythread(self.work_queue,self.fold));
-
-    def wait_allcomplete(self): #等待线程结束
-        for item in self.threads:
-            if item.isAlive():
-                item.join()
-
-#多线程下载
-class Mythread(threading.Thread):
-    def __init__(self,work_queue,fold):
-        threading.Thread.__init__(self)
-        self.work_queue=work_queue
-        self.fold=fold
-        if not os.path.isdir(self.fold): #判断文件夹是否存在，不存在则创建文件夹
-            os.makedirs(self.fold)
-        if os.path.isdir(self.fold): #如果文件夹存在，则启动线程
-            global num   #使用全局变量num
-            num = 1
-            self.start()
-
-    def run(self):
-        global lock
-        global num
-        while not self.work_queue.empty(): #队列非空时，一直循环
-            url = self.work_queue.get() #取出一条数据
-            try:
-                try:
-                    r = request.urlopen(url["url"],timeout=60)  #下载图片，超时为60秒
-                except:
-                    r = request.urlopen(url["url"],timeout=120)  #如果超时，再次下载，超时为120秒                 
-                
-                if 'Content-Type' in r.info():
-                    fileName = os.path.join(self.fold,replace(url["name"]+"."+r.info()['Content-Type'].split('image/')[1])) #根据查看返回的“Content-Type”来判断图片格式，然后生成保存路径
-                    if lock.acquire(): #线程同步
-                        print("开始下载第"+str(num)+"张照片")
-                        if os.path.exists(fileName):
-                            #图片名称若存在，则重命名图片名称
-                            fileName = os.path.join(self.fold,replace("重命名_图片_"+str(num)+"."+r.info()['Content-Type'].split('image/')[1]))                       
-                        num=num+1
-                        lock.release()
-                    f = open(fileName, 'wb') 
-                    f.write(r.read())
-                    f.close()
-                    
-            except:
-                print(url["url"]+"：下载超时！")
-        
-
-#通过比较，取真实相册地址列表——QQ空间存放相册地址的url有四种格式，一一访问，哪个url内的相册地址最多，返回该url
+# 通过比较，取真实相册地址列表——QQ空间存放相册地址的url有四种格式，一一访问，哪个url内的相册地址最多，返回该url
 def checklist(hostuin):
     print("正在获取相册列表……")
     alist = ['alist','xalist','hzalist','gzalist']
@@ -178,7 +181,6 @@ def checklist(hostuin):
         res = Http("http://"+alist[i]+".photo.qq.com/fcgi-bin/fcg_list_album_v2?inCharset=gbk&outCharset=gbk&hostUin=%s&notice=0&callbackFun=&format=jsonp&plat=qzone&source=qzone&appid=4&uin=%s&t=%s&g_tk=%s"%(hostuin,uin,random.Random().random(),gtk),"GBK")
         if res.find("没有权限") != -1:
             return "没有权限"
-            break
         else:
             j = 0
             for match in re.findall('"pre"(.*?)",',res):
@@ -187,10 +189,9 @@ def checklist(hostuin):
     for x in range(4):
         if num[x] == max(num):
             return alist[x]
-            break
 
 #获取照片地址列表
-def getphotolist(hostuin,alist,plist,idcnum):
+def getphotolist(hostuin, alist, plist, idcnum):
     res = Http("http://"+alist+".photo.qq.com/fcgi-bin/fcg_list_album_v2?inCharset=gbk&outCharset=gbk&hostUin=%s&notice=0&callbackFun=&format=jsonp&plat=qzone&source=qzone&appid=4&uin=%s&t=%s&g_tk=%s"%(hostuin,uin,random.Random().random(),gtk),"GBK")
     match = re.search('Callback\((.*?)\);',res,re.S) #加re.S 匹配多行
     if match:
@@ -306,29 +307,28 @@ def youphoto():
 #QQ登录
 class qqlogin:
     #QQ登录加密算法
-    def md5(self,string):
+    def md5(self, string):
         try:
             string = string.encode("utf-8")
         finally:
             return hashlib.md5(string).hexdigest().upper()
 
-    def hexchar2bin(self,num):
+    def hexchar2bin(self, num):
         arry = bytearray()
         for i in range(0, len(num), 2):
             arry.append(int(num[i:i+2],16))
         return arry
 
-    def Getp(self,password,verifycode):
+    def Getp(self,password, verifycode):
         hashpasswd = self.md5(password)
         I = self.hexchar2bin(hashpasswd)
         H = self.md5(I + bytes(verifycode[2], encoding="ISO-8859-1"))
         G = self.md5(H + verifycode[1].upper())
         return G
 
-
-    #验证码处理
+    # 验证码处理
     def GetVerifyCode(self):
-        #判断是否需要验证码
+        # 判断是否需要验证码
         check = Http("http://check.ptlogin2.qq.com/check?regmaster=&uin=%s&appid=%s&r=%s"%(self.uin,appid,random.Random().random()))
         verify =  eval(check.split("(")[1].split(")")[0])
         verify = list(verify)
@@ -341,12 +341,12 @@ class qqlogin:
             verify[1] = input("需要输入验证码，请输入打开的图片\"verify.jpg\"中的验证码：\n").strip()
         return verify
 
-    #登录
-    def Login(self,uid,password,verifycode):
-        p = self.Getp(password,verifycode)  #密码加密
+    # 登录
+    def Login(self,uid,password, verifycode):
+        p = self.Getp(password, verifycode)  # 密码加密
         url = "http://ptlogin2.qq.com/login?ptlang=2052&u="+uid+"&p="+p+"&verifycode="+verifycode[1]+"&css=http://imgcache.qq.com/ptcss/b2/qzone/15000101/style.css&mibao_css=m_qzone&aid="+appid+"&u1=http%3A%2F%2Fimgcache.qq.com%2Fqzone%2Fv5%2Floginsucc.html%3Fpara%3Dizone&ptredirect=1&h=1&from_ui=1&dumy=&fp=loginerroralert&action=2-14-13338&g=1&t=1&dummy="
-        DefaultHeaders.update({"Referer":url}) #更新Referer
-        res = Http(url,"utf-8",DefaultHeaders) #GET登录
+        DefaultHeaders.update({"Referer":url}) # 更新Referer
+        res = Http(url,"utf-8",DefaultHeaders) # GET登录
         if res.find("登录成功") != -1:    
             tempstr =  eval(res.split("(")[1].split(")")[0]) 
             tempstr = list(tempstr)
@@ -355,56 +355,54 @@ class qqlogin:
             checklogin = True
         elif res.find("验证码不正确") != -1:
             print("\n验证码错误，请重新登录")
-            res = GetVerifyCode()
-            res = Login(uin,password,res)
+            res = self.GetVerifyCode()
+            res = self.Login(self.uin,password,res)
         elif res.find("帐号或密码不正确，请重新输入") != -1:
             print("\n帐号或密码不正确，请重新输入")
             uin = input("请输入QQ号码:\n").strip()
             print("请输入QQ密码:")
             password = pwd_input().strip()
-            res = GetVerifyCode()
-            res = Login(uin,password,res)
+            res = self.GetVerifyCode()
+            res = self.Login(uin,password,res)
         return res
 
-    #初始化
-    def __init__(self,uin,password):
-        self.uin = uin  #账号、密码赋值
+    # 初始化
+    def __init__(self, uin, password):
+        self.uin = uin  # 账号、密码赋值
         self.password = password
-        self.res = self.GetVerifyCode() #获取验证码
-        self.Login(self.uin,self.password,self.res) #登录
+        self.res = self.GetVerifyCode() # 获取验证码
+        self.Login(self.uin,self.password,self.res) # 登录
 
-#程序入口
+# 程序入口
 if __name__ == "__main__":
-    print("By：鱼C工作室 — comeheres 博客地址：www.8zata.com")
-    uin = input("请输入QQ号码:\n").strip()   #输入QQ账号
-    print("请输入QQ密码:")                   #输入密码
+    uin = input("请输入QQ号码:\n").strip()   # 输入QQ账号
+    print("请输入QQ密码:")                   # 输入密码
     password = pwd_input().strip()
-    qqlogin(uin,password)                   #登录到QQ网站
+    qqlogin(uin,password)                   # 登录到QQ网站
 
 
+    if cj:
+        skey = GetCookie("skey")
+        if skey:
+            gtk = GetGtk(skey)
 
-if cj:
-    skey = GetCookie("skey")
-    if skey:
-        gtk = GetGtk(skey)
-
-while checklogin:
-    menu()
-    n = input("请输入您的选择:")
-    if n == "1":
-        myphoto()
-        continue
-    elif n == "2":
-        youphoto()
-        continue
-    elif n == "0":
-        select=False
-        exit()
-    elif n == "*":
+    while checklogin:
         menu()
-        continue
-    else:
-        print("选择项不存在，请重新输入！")
-        continue
+        n = input("请输入您的选择:")
+        if n == "1":
+            myphoto()
+            continue
+        elif n == "2":
+            youphoto()
+            continue
+        elif n == "0":
+            select=False
+            exit()
+        elif n == "*":
+            menu()
+            continue
+        else:
+            print("选择项不存在，请重新输入！")
+            continue
 
 

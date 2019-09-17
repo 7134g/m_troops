@@ -14,7 +14,7 @@ def get_info(url):
         contents = str(contents).replace('&ldquo','')
         contents = str(contents).replace(''''天才一秒记住本站网站 www.doupoxs.com 中间是<span style="color:blue">斗破 拼音+小说 首字母</span> 连起来就是斗破小说，喜欢我就记住我吧！''','')
         
-        with open('F:/doupo.txt','a',encoding='utf-8') as f:
+        with open('./doupo.txt','a',encoding='utf-8') as f:
             f.write(contents+'\n')
     else:
         pass

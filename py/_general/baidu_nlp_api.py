@@ -6,7 +6,7 @@ import traceback
 import time
 import json
 
-from nlp_id import id_secret_list
+from baidu_nlp_id import id_secret_list
 # importlib.reload(baidu_id_secret)
 
 

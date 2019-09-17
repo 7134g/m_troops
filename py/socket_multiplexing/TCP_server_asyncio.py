@@ -6,6 +6,7 @@ import platform
 class Server:
     def __init__(self):
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server.setblocking(False)
         self.server.bind(('0.0.0.0', 8000))
         self.server.listen(1)
     

@@ -17,7 +17,7 @@ class Adapter:
         return str(self.obj)
 
 
-def deal_msg():
+def deal_msg(config: str, data: str)-> str:
     # 生成实例
     objects = {}
     s = S1()
@@ -26,11 +26,11 @@ def deal_msg():
     objects["1"] = Adapter(s, dict(execute=s.do_something))
     objects["2"] = Adapter(n, dict(execute=n.do_something))
 
-    return objects
+    return objects[config].execute(data)
 
 
 if __name__ == '__main__':
     config = "1"
     data = "data"
-    s = deal_msg()[config].execute(data)
+    s = deal_msg(config, data)
     print(s)

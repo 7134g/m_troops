@@ -1,6 +1,7 @@
 import asyncio
 import time
 from threading import Thread
+# import uvloop
 
 now = lambda :time.time()
 
@@ -16,6 +17,7 @@ async def do_some_work(x):
 
 
 start = now()
+# new_loop = uvloop.new_event_loop()
 new_loop = asyncio.new_event_loop()
 t = Thread(target=start_loop, args=(new_loop,))
 t.start()

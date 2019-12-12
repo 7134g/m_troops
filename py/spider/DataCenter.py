@@ -51,7 +51,7 @@ class FieldConstants(object):
         if value is None:
             msg = NOVALUE.format(key=name, content=self.__dict__)
             raise ValueError(msg)
-        if _type is SentimentType:
+        if _type is (SentimentType or Enum):
             return value.value
         else:
             msg = NOVALUE.format(key=name, content=self.__dict__)
@@ -97,12 +97,10 @@ class FieldConstants(object):
         for name in dir(self):
             value = getattr(self, name)
 
-            if name in ["companyName", "title", "createTime", "publishTime"]:
+            if not name.startswith('__') and not callable(value) and not name.startswith('_'):
                 if value is None:
                     msg = NONEVALUE.format(name)
                     raise ValueError(msg)
-
-            if not name.startswith('__') and not callable(value) and not name.startswith('_'):
                 pr[name] = value
         return pr
 
@@ -111,5 +109,5 @@ if __name__ == '__main__':
     s.Atype = SentimentType.MIDDLE
     s.publishTime = datetime.now()
     s.companyName = "111"
-    # s.title = "222"
+    s.title = "222"
     print(s.get_dict())

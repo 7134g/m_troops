@@ -12,10 +12,10 @@ class SentimentType(Enum):
 
 class FieldConstants(object):
     # 企业名称
-    companyName = ""
+    companyName = None
 
     # 标题
-    title = ""
+    title = None
 
     # 分类, SentimentType枚举
     Atype = SentimentType.MIDDLE
@@ -36,7 +36,7 @@ class FieldConstants(object):
     createTime = datetime.utcnow()
 
     # 文章发布时间
-    _publishTime = datetime
+    _publishTime = None
 
     def __getattribute__(self, item):
         if item in ["likeNum", "retweetNum", "reviewNum", "readNum"]:
@@ -70,11 +70,11 @@ class FieldConstants(object):
             raise Exception(msg)
 
     @property
-    def publish_time(self):
+    def publishTime(self):
         return self._publishTime
 
-    @publish_time.setter
-    def publish_time(self, value):
+    @publishTime.setter
+    def publishTime(self, value):
         # 预处理
         if int == type(value):
             value = str(value)
@@ -97,11 +97,10 @@ class FieldConstants(object):
         for name in dir(self):
             value = getattr(self, name)
 
-            if name in ["companyName", "title", "createTime", "publish_time"]:
-                if not value is None:
-                    continue
-                msg = NONEVALUE.format(name)
-                raise ValueError(msg)
+            if name in ["companyName", "title", "createTime", "publishTime"]:
+                if value is None:
+                    msg = NONEVALUE.format(name)
+                    raise ValueError(msg)
 
             if not name.startswith('__') and not callable(value) and not name.startswith('_'):
                 pr[name] = value
@@ -110,4 +109,7 @@ class FieldConstants(object):
 if __name__ == '__main__':
     s = FieldConstants()
     s.Atype = SentimentType.MIDDLE
-    print(s.Atype)
+    s.publishTime = datetime.now()
+    s.companyName = "111"
+    # s.title = "222"
+    print(s.get_dict())

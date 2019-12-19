@@ -1,5 +1,6 @@
 from selenium.webdriver import ChromeOptions,Chrome,PhantomJS
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+import time
 
 class SeleniumDriver:
     def __init__(self):
@@ -53,3 +54,15 @@ class SeleniumDriver:
         driver = PhantomJS(executable_path='./geckodriver.exe', desired_capabilities=dcap,
                            service_args=SERVICE_ARGS, service_log_path='./log/ghostdriver.log')
         return driver
+
+    @classmethod
+    def wait_load(cls, driver, text, timeout=30):
+        now_time = time.time()
+        while text not in driver.page_source:
+            if time.time() > now_time + timeout:
+                print("等待超时")
+                return
+            time.sleep(1)
+
+        print("获取到: {}".format(text))
+        return

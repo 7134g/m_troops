@@ -20,13 +20,13 @@ class Command:
 
 
 class ConcreteCommand(Command):
-    """实现命令模式接口"""
+    """实现命令模式接口  行为执行"""
     def execute(self):
         self.obj.run()
 
 
 class Receiver:
-    """具体动作"""
+    """具体动作  行为实现"""
     def __init__(self, word):
         self.word = word
 

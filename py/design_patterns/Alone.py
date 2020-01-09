@@ -8,12 +8,14 @@ class Singleton(object):
             cls._instance = org.__new__(cls, *args, **kw)
         return cls._instance
 
-    def run(self):
-        print("run")
+    def run(self, count=1):
+        if count != 1:
+            self.count = count
+        print(self.count)
 
 if __name__ == '__main__':
     s = Singleton()
-    s.run()
+    s.run(count=100)
 
     e = Singleton()
     e.run()

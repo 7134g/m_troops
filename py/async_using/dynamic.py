@@ -1,3 +1,4 @@
+# 以子线程方式启动事件循环，主线程用于往其中动态添加任务
 import asyncio
 import time
 from threading import Thread

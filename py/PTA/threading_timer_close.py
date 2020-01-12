@@ -1,11 +1,17 @@
+# 以线程的方式控制 程序执行时间
+# 将配置文件注入进 热加载的模块当中
+# 主线程死循环用于 杀死线程
 from threading import Thread, enumerate
 import importlib
 import time
 import datetime
-from process import Setting
 import traceback
 import random
 import gc
+import logging
+
+# import Setting
+logger = logging.getLogger()
 
 
 class Console:
@@ -18,25 +24,28 @@ class Console:
     def run(self, modele_name):
         while True:
             start_time = datetime.datetime.now()
-            Setting.LOGGER.info("程序启动 此时时间：{}".format(start_time))
+            # Setting.LOGGER.info("程序启动 此时时间：{}".format(start_time))
+            logger.info("程序启动 此时时间：{}".format(start_time))
 
             try:
                 module_name = importlib.import_module('.', modele_name)
                 task = importlib.reload(module_name)
-                task.Setting = Setting
+                # task.Setting = Setting
                 task.main()
                 del task
                 gc.collect()
 
             except Exception:
                 traceback.print_exc()
-                Setting.LOGGER.error("程序意外停止了, 睡眠100秒: {}".format(traceback.format_exc()))
+                # Setting.LOGGER.error("程序意外停止了, 睡眠100秒: {}".format(traceback.format_exc()))
+                logger.error("程序意外停止了, 睡眠100秒: {}".format(traceback.format_exc()))
                 time.sleep(100)
                 gc.collect()
 
             finally:
                 end_time = datetime.datetime.now()
-                Setting.LOGGER.info("程序结束 运行时间: ({}) - ({})".format(start_time, end_time))
+                # Setting.LOGGER.info("程序结束 运行时间: ({}) - ({})".format(start_time, end_time))
+                logger.info("程序结束 运行时间: ({}) - ({})".format(start_time, end_time))
                 time.sleep(random.randint(1800, 3600))
 
 
@@ -54,7 +63,8 @@ def main():
                 try:
                     t.start()
                 except:
-                    Setting.LOGGER.err("启动失败，t{}出问题了。。。".format(i))
+                    # Setting.LOGGER.error("启动失败，t{}出问题了。。。".format(i))
+                    logger.error("启动失败，t{}出问题了。。。".format(i))
 
             status = False
 

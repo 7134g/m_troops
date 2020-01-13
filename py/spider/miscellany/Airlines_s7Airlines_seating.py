@@ -164,7 +164,7 @@ async def Do(task: dict, logger) -> list:
             pass
 
 # 逐个取出
-# async def run(params: list)-> list:
+# async def run_for(params: list)-> list:
 #     tasks = [asyncio.ensure_future(post_order(param)) for param in params]
 #     for task in asyncio.as_completed(tasks):
 #         result = await task

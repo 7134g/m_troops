@@ -67,7 +67,7 @@ def main2():
     classdict = {
         "__init__": __init__,
         "parent": parent,
-        "run": run,
+        "run_for": run,
     }
     Deom = type(classname, classtype, classdict)
     test = Deom()

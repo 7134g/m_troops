@@ -34,15 +34,18 @@ if __name__ == '__main__':
     print('线程启动')
     a.start()
 
-    time.sleep(1)  # 给予执行时间
+    print('\n模拟1秒执行时间')
+    time.sleep(1)
 
     a.stop()
-    print('停止工作')
+    print('\n停止工作')
     time.sleep(5)
 
-    # a.join()  # 尝试等待, 发现线程已不工作
+    print('\n尝试等待, 发现线程已不工作')
+    a.join()
     a.restart()
 
-    time.sleep(2)  # 给予执行时间
+    print('\n模拟2秒执行时间')
+    time.sleep(2)
     a.stop()
 

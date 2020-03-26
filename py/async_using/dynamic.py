@@ -1,5 +1,5 @@
 # 以子线程方式启动事件循环，主线程用于往其中动态添加任务
-# 内存峰值 520000, 花费 20 秒
+# 内存峰值 300M, 花费 20 秒
 import asyncio
 import datetime , time
 from threading import Thread

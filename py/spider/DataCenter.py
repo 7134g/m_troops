@@ -86,6 +86,21 @@ class StructBase:
             return self.deal_pack(key, value)
         object.__setattr__(self, key, value)
 
+    def __str__(self):
+        pr = {}
+        for name in dir(self):
+            value = getattr(self, name)
+
+            if not name.startswith('__') and not callable(value) and not name.startswith('_'):
+                if value is None:
+                    msg = "{} 的值为空, 来源于: {}".format(name, getattr(self, "eid"))
+                    raise ValueError(msg)
+                pr[name] = value
+        new_data = json_to_empty(pr)
+        for k, v in new_data.items():
+            print("%-15s:%s" % (k, v))
+        return ''
+
     def deal_pack(self, key, value):
         now_value = self.__dict__.get(key, [{}])
         if now_value == [{}]:

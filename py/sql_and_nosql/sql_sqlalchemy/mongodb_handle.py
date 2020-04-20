@@ -78,7 +78,7 @@ class BaseMongoHandler:
         if not is_finish:
             self.bulk.append(ReplaceOne(query_builder, data, upsert=True))
 
-        if len(self.bulk) >= self.MONGOBULK or is_finish:
+        if len(self.bulk[col_name]) >= self.MONGOBULK or is_finish:
             s = time.time()
             col.bulk_write(self.bulk)
             e = time.time()
@@ -86,18 +86,13 @@ class BaseMongoHandler:
             print("***%s***, 替换%s个, 当前已操作 %s 个" % (e - s, self.MONGOBULK, count))
 
     def delete(self, col_name, query_builder, count, is_finish=False):
-        """
-        :param col_name: 表名
-        :param data: 目标数据
-        :param count: 计数
-        """
         col = self.db[col_name]
         if not is_finish:
-            self.bulk.append(DeleteOne(query_builder))
+            self.bulk[col_name].append(DeleteOne(query_builder))
 
-        if len(self.bulk) >= self.MONGOBULK or is_finish:
+        if len(self.bulk[col_name]) >= self.MONGOBULK or is_finish:
             s = time.time()
-            col.bulk_write(self.bulk)
+            col.bulk_write(self.bulk[col_name])
             e = time.time()
             self.bulk = []
             print("***%s***, 清除%s个, 当前已操作 %s 个" % (e - s, self.MONGOBULK, count))

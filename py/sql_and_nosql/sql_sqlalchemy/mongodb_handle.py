@@ -64,7 +64,7 @@ class BaseMongoHandler:
 
         return None
 
-    def replace(self, col_name, query_builder, data, count):
+    def replace(self, col_name, query_builder, data, count, is_finish=False):
         """
         :param col_name: 表名
         :param data: 目标数据
@@ -75,25 +75,27 @@ class BaseMongoHandler:
         del data['_id']
         data['updateTime'] = cur_time
 
-        self.bulk.append(ReplaceOne(query_builder, data, upsert=True))
+        if not is_finish:
+            self.bulk.append(ReplaceOne(query_builder, data, upsert=True))
 
-        if len(self.bulk) >= self.MONGOBULK:
+        if len(self.bulk) >= self.MONGOBULK or is_finish:
             s = time.time()
             col.bulk_write(self.bulk)
             e = time.time()
             self.bulk = []
             print("***%s***, 替换%s个, 当前已操作 %s 个" % (e - s, self.MONGOBULK, count))
 
-    def delete(self, col_name, query_builder, data, count):
+    def delete(self, col_name, query_builder, count, is_finish=False):
         """
         :param col_name: 表名
         :param data: 目标数据
         :param count: 计数
         """
         col = self.db[col_name]
-        self.bulk.append(DeleteOne(query_builder))
+        if not is_finish:
+            self.bulk.append(DeleteOne(query_builder))
 
-        if len(self.bulk) >= self.MONGOBULK:
+        if len(self.bulk) >= self.MONGOBULK or is_finish:
             s = time.time()
             col.bulk_write(self.bulk)
             e = time.time()

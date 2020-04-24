@@ -20,6 +20,7 @@ def get_log(name="log"):
     logger = logging.getLogger(__name__)
     logger.setLevel(level=logging.INFO)
     formatter = logging.Formatter('%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s - %(message)s')
+    # formatter = logging.Formatter('%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s - %(message)s')
 
     # 日志
     handler = logging.FileHandler(path, encoding="utf-8")

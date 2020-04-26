@@ -121,9 +121,6 @@ if __name__ == '__main__':
         "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
     }
     url = 'http://www.innocom.gov.cn/gxjsqyrdw/dfbhdbdf/201912/5df07f19de434b619cf75cede36d20d2/files/ad9943bad4aa40babd869933ba092ec9.pdf'
-    # proxy = "39.108.167.148:7777"
-    # proxies = { "http": f"http://{proxy}", "https": f"http://{proxy}", }
-    # text = requests.get(url, verify=False, headers=headers, proxies=proxies).text
 
     response = requests.get(url, verify=False, headers=headers)
 

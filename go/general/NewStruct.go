@@ -1,3 +1,7 @@
+package main
+
+import "bytes"
+
 type Hset struct {
     m map[interface{}]bool
 }
@@ -40,7 +44,7 @@ func (h *Hset) Same(other *Hset) bool {
         return false
     }
 
-    for k, _ := range h.m{
+    for k := range h.m{
         if h.m[k] != other.m[k]{
             return false
         }
@@ -55,7 +59,7 @@ func (h *Hset) Elements() []interface{} {
 
     index := 0
 
-    for k, _ := range h.m{
+    for k := range h.m{
         result[index] = k
         index ++
     }

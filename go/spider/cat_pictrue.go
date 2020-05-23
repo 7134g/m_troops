@@ -35,7 +35,7 @@ func download(ch chan int)  {
 }
 
 func main()  {
-	chs := make([] chan int, 5)
+	chs := make([]chan int, 5)
 	for n:=0;n<5;n++{
 		chs[n] = make(chan int)
 		go download(chs[n])

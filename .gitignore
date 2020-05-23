@@ -5,3 +5,4 @@ log
 gitfile.sh
 *.log
 test
+go.mod

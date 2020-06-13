@@ -6,3 +6,4 @@ gitfile.sh
 *.log
 test
 go.mod
+go.sum

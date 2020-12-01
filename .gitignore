@@ -1,7 +1,8 @@
 .idea
-
 __pycache__
-
 download
-
 log
+gitfile.sh
+*.log
+test
+py/sharpe_ratio/data

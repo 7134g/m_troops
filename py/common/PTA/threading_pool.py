@@ -103,8 +103,8 @@ class Factory:
 
     # 等待某项任务完成
     def wait(self, names):
-        Log.info(f"{names} 等待本次执行完毕")
         for name in names:
+            Log.info(f"{name} 等待本次执行完毕, 任务数: {self._active_working[name]}")
             while self.get_active(name) > 0:
                 time.sleep(WORKER_SLEEP)
                 # if "tester" == name:

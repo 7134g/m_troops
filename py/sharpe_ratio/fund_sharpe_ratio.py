@@ -11,6 +11,9 @@ from urllib3.exceptions import InsecureRequestWarning
 
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+headers = {
+    'User-Agent': 'Mozilla/5.0(Windows NT 10.0; Win64; x64)AppleWebKit/537.36(KHTML,like Gecko)Chrome/70.0.3538.77Safari/537.36',
+}
 
 
 # 20190307 --- 之前爬取历史净值的url失效, 新增爬取逻辑
@@ -23,10 +26,11 @@ def get_history_value_new(code, begin, fund_type):
     for page_num in range(1, 10000):
         # print(page_num)
         fund_url = f'http://fund.eastmoney.com/f10/F10DataApi.aspx?type=lsjz&code={code}&page={page_num}&per=1000'
-        response = requests.get(fund_url, headers=COMMON_HEADERS, verify=False)
+        response = requests.get(fund_url, headers=headers, verify=False)
         html = response.text
         # print(response.status_code)
-        if "暂无数据" in html:
+        if "暂无数据" in html and html:
+            print(html)
             break
         soup = BeautifulSoup(html, "lxml")
         table = soup.find("table", {"class": "w782 comm lsjz"})

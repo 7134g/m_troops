@@ -5,6 +5,12 @@ import re
 import pandas as pd
 import numpy as np
 from config import *
+import requests
+
+from urllib3.exceptions import InsecureRequestWarning
+
+
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
 # 20190307 --- 之前爬取历史净值的url失效, 新增爬取逻辑
@@ -15,8 +21,14 @@ def get_history_value_new(code, begin, fund_type):
 
     df_list = []
     for page_num in range(1, 10000):
-        fund_url = 'http://fund.eastmoney.com/f10/F10DataApi.aspx?type=lsjz&code={}&page={}&per=1000'.format(code, page_num)
-        soup = BeautifulSoup(urllib.request.urlopen(url=fund_url), "lxml")
+        # print(page_num)
+        fund_url = f'http://fund.eastmoney.com/f10/F10DataApi.aspx?type=lsjz&code={code}&page={page_num}&per=1000'
+        response = requests.get(fund_url, headers=COMMON_HEADERS, verify=False)
+        html = response.text
+        # print(response.status_code)
+        if "暂无数据" in html:
+            break
+        soup = BeautifulSoup(html, "lxml")
         table = soup.find("table", {"class": "w782 comm lsjz"})
         td_th = re.compile('t[dh]')
         ret_list = []
@@ -43,7 +55,7 @@ def get_history_value_new(code, begin, fund_type):
         else:
             df_list.append(ret)
     df_ret = pd.concat(df_list, axis=0)
-    print(df_ret.shape)
+    print(f"{code} 数据长宽: {df_ret.shape}")
     df_ret.to_csv(VALUE_DIR + file_name, index=False, encoding='utf-8')
     return
 
@@ -132,7 +144,20 @@ def cal_sharpe_ratio(fund_type, code, begin):
     return sr_day, sr_week, sr_month
 
 
-def sr_rank_master(chose_type, top_rate, begin_date):
+def task(sharpe_r_list, fund_code, begin_date, chose_type):
+    get_history_value_new(fund_code, begin_date, chose_type)
+    sr_day, sr_week, sr_month = cal_sharpe_ratio(chose_type, fund_code, begin_date)
+    sharpe_r_dict = dict()
+    sharpe_r_dict['code'] = fund_code
+    sharpe_r_dict['sr_daily'] = round(sr_day, 4)
+    sharpe_r_dict['sr_weekly'] = round(sr_week, 4)
+    sharpe_r_dict['sr_monthly'] = round(sr_month, 4)
+    sharpe_r_list.append(sharpe_r_dict)
+
+
+def sr_rank_master(factory, chose_type, top_rate, begin_date):
+    # factory = Factory()
+    t = set()
     rr_rank_df = pd.read_csv(u'data/{}基金_收益率排名_{}.csv'.format(FUND_TYPE.get(chose_type), DATE_NOW),
                              sep=',',
                              dtype={'code': str})
@@ -140,14 +165,19 @@ def sr_rank_master(chose_type, top_rate, begin_date):
     sharpe_r_list = []
     for fund_code in chose_code_list:
         # get_history_value(fund_code, SHARPE_RATIO_BEGIN_DATE, chose_type)
-        get_history_value_new(fund_code, begin_date, chose_type)
-        sr_day, sr_week, sr_month = cal_sharpe_ratio(chose_type, fund_code, begin_date)
-        sharpe_r_dict = dict()
-        sharpe_r_dict['code'] = fund_code
-        sharpe_r_dict['sr_daily'] = round(sr_day, 4)
-        sharpe_r_dict['sr_weekly'] = round(sr_week, 4)
-        sharpe_r_dict['sr_monthly'] = round(sr_month, 4)
-        sharpe_r_list.append(sharpe_r_dict)
+        t.add(factory.add(task, sharpe_r_list, fund_code, begin_date, chose_type))
+
+        # get_history_value_new(fund_code, begin_date, chose_type)
+        # sr_day, sr_week, sr_month = cal_sharpe_ratio(chose_type, fund_code, begin_date)
+        # sharpe_r_dict = dict()
+        # sharpe_r_dict['code'] = fund_code
+        # sharpe_r_dict['sr_daily'] = round(sr_day, 4)
+        # sharpe_r_dict['sr_weekly'] = round(sr_week, 4)
+        # sharpe_r_dict['sr_monthly'] = round(sr_month, 4)
+        # sharpe_r_list.append(sharpe_r_dict)
+
+    factory.wait(t)
+    print("gogogog")
     sharpe_r_df = pd.DataFrame(sharpe_r_list)
     sort_df_list = []
     for sort_type in ['sr_daily', 'sr_weekly', 'sr_monthly']:
@@ -159,6 +189,7 @@ def sr_rank_master(chose_type, top_rate, begin_date):
     ret = pd.concat(sort_df_list, axis=1)
     ret.to_csv(u'data/{}基金_夏普率排名_{}_{}.csv'.format(FUND_TYPE.get(chose_type), begin_date, DATE_NOW),
                index=False, encoding='utf-8')
+    factory.stop()
     return
 
 

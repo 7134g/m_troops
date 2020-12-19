@@ -5,9 +5,8 @@ from sqlalchemy import MetaData, Table, select, and_
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from config import MYSQL_URL
 
-
+MYSQL_URL = ""
 # 后面改，父类继承初始化MYSQL_URL
 
 class MysqlClient(object):
@@ -250,33 +249,25 @@ class MysqlClient(object):
         return obtain
 
 
+class SeatPost:
+    def __init__(self,start, end, company, date):
+        self.start = start
+        self.end = end
+        self.company = company
+        self.date = date
+    pass
+
 if __name__ == '__main__':
     # [103, 'ZHANG/YIDI ', '男', '中国 ', 'E57013072', datetime.datetime(1992, 10, 2, 0, 0), datetime.datetime(2025, 8, 10, 0, 0), '中国 ']
-    from pprint import pprint
     import time
-    from modele import SeatPost
-    from config import MYSQL_USER
-    import sys
 
     timer = int(time.time()*1000)
     num = 2
     m = MysqlClient()
-    # user = SeatPost(start="ctu",end="tyo",company="CZ4081",date="2019-07-19")
+    user = SeatPost(start="ctu",end="tyo",company="CZ4081",date="2019-07-19")
     pack = {"seatcount":200}
     result = m.r_seleter_once(SeatPost,)
     print(result)
-
-    # for i in range(100):
-    #     count = randint(100000, 1000000)
-    #     table_name = MYSQL_USER
-    #     m = MysqlClient()
-    #     a = m.r_absolute_area(table_name, count)
-    #     b = len(a)
-    #     # print(a)
-    #     print(b)
-    #     if b != count:
-    #         raise Exception("还是出错啦")
-    #     # sys.stdout.flush()
 
 
 

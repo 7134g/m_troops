@@ -3,15 +3,17 @@ import aiomysql
 
 
 class MysqlOptAsync(object):
+    # def __init__(self, loop, host, port, username, password, database):
     def __init__(self, loop):
         self.host = "127.0.0.1"
         self.port = 3306
         self.user = "root"
         self.password = "fxj123"
         self.db = "test_pymysql"
+        self._pool = None
+        self._loop = loop
+        # self._pool = None
 
-        self._pool = None  # 存放mysql连接池
-        self._loop = loop  # mysql连接池的事件循环基础
 
     async def pool(self):
         if not self._pool:
@@ -21,19 +23,16 @@ class MysqlOptAsync(object):
             print(self._pool)
         return self._pool
 
+
     async def insertOpt(self, data=None):
-        # 获取连接池对象
         async with self._pool.acquire() as conn:
-            # 建立光标
             async with conn.cursor() as cur:
                 sql = 'insert into user(val) value(%s);'
                 sql2 = 'SELECT * FROM USER WHERE val=21;'
                 try:
-                    # 生成需要执行的sql语句
                     # await cur.execute(sql, data)
                     a = await cur.execute(sql2)
                     print(a)
-                    # 提交操作
                     await conn.commit()
                 except Exception as e:
                     print('cuo')

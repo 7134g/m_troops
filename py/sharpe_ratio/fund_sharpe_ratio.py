@@ -191,7 +191,7 @@ def sr_rank_master(factory, chose_type, top_rate, begin_date):
         sort_df = sort_df.reset_index(drop=True)
         sort_df_list.append(sort_df)
     ret = pd.concat(sort_df_list, axis=1)
-    ret.to_csv(u'data/{}基金_夏普率排名_{}_{}.csv'.format(FUND_TYPE.get(chose_type), begin_date, DATE_NOW),
+    ret.to_csv(u'sharpe/{}基金_夏普率排名_{}_{}.csv'.format(FUND_TYPE.get(chose_type), begin_date, DATE_NOW),
                index=False, encoding='utf-8')
     factory.stop()
     return

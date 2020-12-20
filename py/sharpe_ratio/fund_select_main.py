@@ -6,12 +6,12 @@ from py.common.PTA.threading_pool import Factory
 
 
 def go_shape(factory, chose_type):
-    sr_top_rate = 0.1
-    sr_begin_date = '2019-01-01'
+    sr_top_rate = FUND_RANGE_RATE
+    sr_begin_date = START_TIME
     sr_rank_master(factory, chose_type=chose_type, top_rate=sr_top_rate, begin_date=sr_begin_date)
 
 
-def main():
+def new_earnings_sharpe():
     factory = Factory()
     for chose_type, chose_name in FUND_TYPE.items():
         print("正在获取 {} 基金的历史收益率排名...".format(chose_name))
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     sr_top_rate:   取值为0到1的float, 选择收益率排名的Top %(sr_top_rate * 100)基金去计算夏普率, 再进行排序
     sr_begin_date: 计算夏普率的开始日期, 要保证大于等于 SHARPE_RATIO_BEGIN_DATE
     """
-    main()
+    new_earnings_sharpe()
     # 收益率排名
     # for chose_type, chose_name in FUND_TYPE.items():
     #     print("正在获取 {} 基金的历史收益率排名...".format(chose_name))

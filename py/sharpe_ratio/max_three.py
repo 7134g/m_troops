@@ -101,7 +101,7 @@ def sharpe_bast(kw, path):
     print()
 
 
-def start():
+def sharpe_start():
     tab_key_word = [
         {"chose_type": "股票型", "time": "2019-01-01_2020-12-19"},
         {"chose_type": "指数型", "time": "2019-01-01_2020-12-19"},
@@ -118,4 +118,4 @@ def start():
 
 
 if __name__ == '__main__':
-    start()
+    sharpe_start()

@@ -21,7 +21,7 @@ def new_earnings_sharpe():
     all_type = ['gp', 'hh', 'zq', 'zs']
     for chose_type in all_type:
         factory.add(go_shape, factory, chose_type)
-    factory.wait()
+    factory.wait_all()
     factory.start()
 
 

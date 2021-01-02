@@ -24,7 +24,7 @@ SHARPE_RATIO_BEGIN_DATE = '2014-01-01'
 RISK_FREE_GAIN = 1.03  # 固定值
 
 START_TIME = '2019-01-01'  # 从哪个时间开始抓取信息
-FUND_RANGE_RATE = 0.1 # 挑选前百分之多少的基金去计算夏普值
+FUND_RANGE_RATE = 0.5 # 挑选前百分之多少的基金去计算夏普值
 
 
 # 文件存储路径

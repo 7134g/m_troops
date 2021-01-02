@@ -30,7 +30,8 @@ def get_history_value_new(code, begin, fund_type):
         html = response.text
         # print(response.status_code)
         if "暂无数据" in html and html:
-            print(html)
+            # print(html)
+            print(f"{code} 已经是最后一页")
             break
         soup = BeautifulSoup(html, "lxml")
         table = soup.find("table", {"class": "w782 comm lsjz"})
@@ -198,5 +199,4 @@ def sr_rank_master(factory, chose_type, top_rate, begin_date):
 
 
 if __name__ == '__main__':
-    # sr_rank_master('zs', 0.2, '2016-04-01')
-    get_history_value_new('002190', '2018-01-01', 'zs')
+    get_history_value_new('002190', '2019-01-01', 'hh')

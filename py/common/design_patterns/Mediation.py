@@ -43,11 +43,11 @@ class Mediator:
 
     def sale(self):
         """进货"""
-        self.consumer.shopping(self.producer.name)
+        self.consumer.shopping(self.producer.code)
 
     def shopping(self):
         """出货"""
-        self.producer.sale(self.consumer.name)
+        self.producer.sale(self.consumer.code)
 
     def profit(self):
         """利润"""

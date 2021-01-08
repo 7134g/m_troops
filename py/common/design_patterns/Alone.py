@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
     print("================================")
     f1 = Foo("liming")
-    print(f1.name)
+    print(f1.code)
     f2 = Foo()
-    print(f2.name)
+    print(f2.code)
     print(id(f1), id(f2))

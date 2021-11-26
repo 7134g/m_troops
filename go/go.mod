@@ -7,8 +7,8 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/antchfx/htmlquery v1.2.3
 	github.com/antchfx/xmlquery v1.3.3 // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/gin-gonic/gin v1.7.7
+	github.com/dgrijalva/jwt-go v3.2.1-0.20210802184156-9742bd7fca1c+incompatible
+	github.com/gin-gonic/gin v1.7.2-0.20211125101208-823adfc91abf
 	github.com/go-playground/validator/v10 v10.9.0 // indirect
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-sql-driver/mysql v1.6.0

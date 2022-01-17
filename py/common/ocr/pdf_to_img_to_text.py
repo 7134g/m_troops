@@ -1,19 +1,15 @@
 # pip install pymupdf
 # pip install cnocr
 
-
-import sys
-from io import TextIOWrapper
-
-sys.stdout = TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-
 import os
 import fitz
 from cnocr import CnOcr
 import warnings
+import sys
+from io import TextIOWrapper
 
+sys.stdout = TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 warnings.filterwarnings("ignore")
-
 ocr = CnOcr(model_name='densenet_lite_136-fc')
 
 
@@ -35,7 +31,7 @@ def pyMuPDF_fitz(pdfPath):
         image_path = os.path.join(temp_dir, "{}_img_{}.png".format(name, (pg + 1)))
         pix.save(image_path)  # 将图片写入指定的文件夹内
         img_paths.append(image_path)
-
+    pdf_doc.close()
     return img_paths
 
 
@@ -51,7 +47,7 @@ def ocr_extract(path: str):
 
 
 if __name__ == "__main__":
-    # pdf_path = "2.pdf"
+    # pdf_path = "1.pdf"
     pdf_path = sys.argv[1]
     paths = pyMuPDF_fitz(pdf_path)
     content: str = ""

@@ -5,50 +5,7 @@ import (
 	"reflect"
 )
 
-//package main
-//
-//import (
-//	"errors"
-//	"reflect"
-//)
-//
-//type Student struct {
-//	Name string
-//	Age int
-//	Scord int
-//}
-//
-//type Teacher struct {
-//	Name string
-//	ClassName string
-//}
-//
-//func main() {
-//	setting := map[string]interface{}{
-//		"Name": "Tom",
-//		"Age": 17,
-//		"ClassName": 1,
-//	}
-//
-//	stud := Student{}
-//	fmt.Println("do task ago, stud = ", stud)
-//	err := filBysetting(&stud, setting)
-//	if err != nil{
-//		fmt.Println(err)
-//	}
-//	fmt.Println("do task after, stud = ", stud)
-//
-//	teac := Teacher{}
-//	fmt.Println("do task ago, stud = ", teac)
-//	err = filBysetting(&teac, setting)
-//	if err != nil{
-//		fmt.Println(err)
-//	}
-//	fmt.Println("do task after, stud = ", teac)
-//
-//}
-
-func filBysetting(st interface{}, setting map[string]interface{}) error {
+func FilBySetting(st interface{}, setting map[string]interface{}) error {
 	isPtr := reflect.TypeOf(st).Kind() == reflect.Ptr
 	isStruct := reflect.TypeOf(st).Elem().Kind() == reflect.Struct
 	if !isPtr || !isStruct {

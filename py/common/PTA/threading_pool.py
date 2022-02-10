@@ -11,7 +11,10 @@ WORKER_SLEEP = 5
 # 检查工厂状态
 CHECK_FACTORY_STATUS = 10
 # 打工人数量（并发）
-CONCURRENT = 100
+CONCURRENT = 80
+# 连续沉睡最大值
+SLEEP_CONT_MAX = 10
+
 
 class Task:
     def __init__(self, fun, *args, **kw):
@@ -68,7 +71,7 @@ class Factory:
             worker_count = self._max_workers
 
         for wid in range(worker_count):
-            w = Worker(len(self.workers)+1, self)
+            w = Worker(len(self.workers) + 1, self)
             self.workers.append(w)
 
     # 开始打工
@@ -119,12 +122,12 @@ class Factory:
                 for w in fired_target:
                     w.fired()
             else:
-                self._create_worker(concurrent-CONCURRENT)
+                self._create_worker(concurrent - CONCURRENT)
                 self._woring()
 
     # 解雇所有打工人
     def stop(self):
-        while not self.tasks:
+        while self.tasks:
             time.sleep(CHECK_FACTORY_STATUS)
 
         if self.factory_status:
@@ -147,8 +150,8 @@ class Factory:
         self._create_worker()
         Log.debug("打工人准备就绪")
         self._woring()
-        while self.factory_status:
-            time.sleep(CHECK_FACTORY_STATUS)
+        # while self.factory_status:
+        #     time.sleep(CHECK_FACTORY_STATUS)
 
         # # 关闭池
         # return self.shutdown()

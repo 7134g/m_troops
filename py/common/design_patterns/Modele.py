@@ -25,7 +25,7 @@ class Handle:
                  "客户：{}" \
                  "商品：{}" \
                  "数量：{}" \
-                 "时间：{}".format(self.user.name, self.user.shop, self.user.number, self.user.times)
+                 "时间：{}".format(self.user.code, self.user.shop, self.user.number, self.user.times)
         print(string)
 
     def make(self):

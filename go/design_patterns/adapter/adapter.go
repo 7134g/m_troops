@@ -1,6 +1,6 @@
 // 适配器: 适配器模式将一个类的接口，转换成客户期望的另一个接口。适配器让原本接口不兼容的类可以合作无间
 
-package main
+package adapter
 
 import "fmt"
 
@@ -37,13 +37,4 @@ func (player *PlayerAdaptor) play(fileType string, fileName string) {
 	default:
 		fmt.Println("暂时不支持此类型文件播放")
 	}
-}
-
-func main() {
-	var player MusicPlayer
-	player = &PlayerAdaptor{}
-	player.play("mp3", "死了都要爱")
-	player.play("wma", "滴滴")
-	player.play("mp4", "复仇者联盟")
-
 }

@@ -19,25 +19,11 @@ class Adapter:
     def execute(self, data):
         return ""
 
-# 调用方式一
-def deal_msg(config: str, data: str)-> str:
-    # 生成实例
-    childrens = {}
-    s = S1()
-    n = N1()
-    # 注册
-    childrens["1"] = Adapter(s, dict(execute=s.do_something))
-    childrens["2"] = Adapter(n, dict(execute=n.do_something))
 
-    return childrens[config].execute(data)
-
-
-# 调用方式二
 def __init__(self):
     self.childrens = {}
 
 
-# 调用方式二
 def run(self, data, *args):
     for key, value in self.childrens.items():
         print('开始执行: {}'.format(key))
@@ -45,7 +31,6 @@ def run(self, data, *args):
         print(result)
 
 
-# 调用方式二
 def parent(self, *args):
     for index, value in enumerate(args):
         key = 'ChlidSystem{index}'.format(index=index)
@@ -53,16 +38,8 @@ def parent(self, *args):
         self.childrens[key] = Adapter(obj, dict(execute=obj.do_something))
 
 
-# 调用方式一
-def main1():
-    config = "1"
-    data = "   main1"
-    s = deal_msg(config, data)
-    print(s)
-
-# 调用方式二
 def main2():
-    classname = "Test"
+    classname = "Adapter2"
     classtype = (object,)
     classdict = {
         "__init__": __init__,
@@ -72,9 +49,8 @@ def main2():
     Deom = type(classname, classtype, classdict)
     test = Deom()
     test.parent(S1, N1) # 接受不限量接口
-    test.run("   main2")
+    test.run_for("   main2")
 
 
 if __name__ == '__main__':
-    main1()
     main2()

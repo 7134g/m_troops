@@ -1,8 +1,7 @@
 // 单例模式
-package main
+package alone
 
 import (
-	"fmt"
 	"sync"
 )
 
@@ -18,11 +17,4 @@ func GetObjectAlone(s string) *Alone {
 		First = &Alone{name: s}
 	})
 	return First
-}
-
-func main() {
-	obj1 := GetObjectAlone("first")
-	fmt.Println(obj1.name)
-	obj2 := GetObjectAlone("second")
-	fmt.Println(obj2.name)
 }

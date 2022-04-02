@@ -1,7 +1,4 @@
-- 设计模式
-  - [适配器](design_patterns/adapter/adapter.go)
-  - [单例](design_patterns/alone/alone.go)
-  - [桥接](design_patterns/bridge/bridge.go)
+- [设计模式](design_patterns)
 
 - 代码块
   - [结构体转map](general/StructAssignment.go)

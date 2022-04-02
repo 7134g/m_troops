@@ -15,9 +15,9 @@ require (
 	github.com/gocolly/colly v1.2.0
 	github.com/golang/mock v1.6.0
 	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/google/martian v2.1.0+incompatible
 	github.com/jinzhu/gorm v1.9.16
 	github.com/kennygrant/sanitize v1.2.4 // indirect
-	github.com/mailru/easyjson v0.7.1
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/onsi/ginkgo v1.14.2 // indirect
 	github.com/onsi/gomega v1.10.3 // indirect

@@ -6,3 +6,7 @@ gitfile.sh
 *.log
 test/
 py/sharpe_ratio/data
+
+
+go/proxy/cert.sqlite3
+go/proxy/mitm.crt

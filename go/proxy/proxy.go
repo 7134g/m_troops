@@ -22,7 +22,7 @@ func Serve() error {
 		if err != nil {
 			return err
 		}
-		go handle(client)
+		go proxyHandle(client)
 	}
 
 }
@@ -68,6 +68,23 @@ func handle(client net.Conn) {
 		_, _ = server.Write(b[:n])
 	}
 	// 不使用下级代理，转发数据
+	go io.Copy(server, client)
+	io.Copy(client, server)
+	return
+}
+
+func proxyHandle(client net.Conn) {
+	if client == nil {
+		return
+	}
+	defer client.Close()
+
+	server, err := net.Dial("tcp", "127.0.0.1:8888")
+	if err != nil {
+		return
+	}
+	defer server.Close()
+
 	go io.Copy(server, client)
 	io.Copy(client, server)
 	return

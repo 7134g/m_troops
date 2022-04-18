@@ -23,7 +23,8 @@ func Martian() error {
 	// 使用代理发请求时候装载证书
 	if ProxyServer != "" {
 		fmt.Println("开启代理：", ProxyServer)
-		mc, err := GlobalCert.GetMITMConfig()
+		CertReload()
+		mc, err := GetMITMConfig()
 		if err != nil {
 			return err
 		}

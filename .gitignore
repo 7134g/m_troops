@@ -8,5 +8,5 @@ test/
 py/sharpe_ratio/data
 
 
-go/proxy/cert.sqlite3
-go/proxy/mitm.crt
+go/common/proxy/cert.sqlite3
+go/common/proxy/mitm.crt

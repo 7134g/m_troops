@@ -1,8 +1,8 @@
 - [设计模式](design_patterns)
 
 - 代码块
-  - [结构体转map](general/StructAssignment.go)
-  - [协程池](pool/pool.go)
+  - [结构体转map](common/StructAssignment.go)
+  - [协程池](common/pool/pool.go)
   - tcp
     - [服务端](socket/server_ts.go)
     - [客户端](socket/client_ts.go)

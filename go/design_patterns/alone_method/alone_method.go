@@ -1,4 +1,4 @@
-package singleton
+package alone_method
 
 import "sync"
 
@@ -18,7 +18,7 @@ var (
 	once     sync.Once
 )
 
-//GetInstance 用于获取单例模式对象
+// GetInstance 用于获取单例模式对象
 func GetInstance() Singleton {
 	once.Do(func() {
 		instance = &singleton{}

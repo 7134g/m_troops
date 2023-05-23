@@ -7,6 +7,8 @@ import (
 	"github.com/robertkrimen/otto"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/transform"
+	"math/rand"
+	"time"
 
 	"net/url"
 	"strconv"
@@ -280,7 +282,7 @@ function decodeScript(jsstr){
 };
 `
 
-//HTML转义
+// HTML转义
 func HtmlEscape(htmlstr string) string {
 	rs := []rune(htmlstr)
 	var html_ string
@@ -290,7 +292,7 @@ func HtmlEscape(htmlstr string) string {
 	return html_
 }
 
-//HTML反转义
+// HTML反转义
 func HtmlUnescape(str string) (string, error) {
 	strs := strings.Split(str, ";")
 	rs := make([]rune, 0, len(strs))
@@ -304,4 +306,16 @@ func HtmlUnescape(str string) (string, error) {
 		}
 	}
 	return string(rs), nil
+}
+
+// GenRandomString 随机生成字符串
+func GenRandomString(l int) string {
+	str := "0123456789abcdefghijklmnopqrstuvwxyz"
+	bytes := []byte(str)
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	var result []byte
+	for i := 0; i < l; i++ {
+		result = append(result, bytes[r.Intn(len(bytes))])
+	}
+	return string(result)
 }

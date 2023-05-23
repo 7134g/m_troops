@@ -1,4 +1,4 @@
-package singleton
+package alone_method
 
 import (
 	"sync"

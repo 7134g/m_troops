@@ -12,7 +12,6 @@ require (
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/golang/mock v1.6.0
 	github.com/google/martian v2.1.0+incompatible
-	github.com/jinzhu/gorm v1.9.16
 	github.com/qiniu/api.v6 v6.0.9+incompatible
 	github.com/robertkrimen/otto v0.0.0-20221025135307-511d75fba9f8
 	github.com/smartystreets/goconvey v1.7.2
@@ -24,14 +23,15 @@ require (
 )
 
 require (
+	github.com/gomodule/redigo v1.8.9
 	github.com/google/go-cmp v0.5.9 // indirect
-	github.com/mattn/go-sqlite3 v1.14.9 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/onsi/ginkgo v1.14.2 // indirect
 	github.com/onsi/gomega v1.10.3 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/tklauser/go-sysconf v0.3.10 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
+	go.mongodb.org/mongo-driver v1.11.6
 	golang.org/x/exp v0.0.0-20230519143937-03e91628a987
 	golang.org/x/sys v0.1.0
 )

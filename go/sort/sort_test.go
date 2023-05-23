@@ -3,6 +3,7 @@ package sort
 import (
 	"fmt"
 	"testing"
+	"time"
 )
 
 func TestMer(t *testing.T) {
@@ -16,7 +17,7 @@ func TestMer(t *testing.T) {
 func TestBub(t *testing.T) {
 	// 冒泡
 	arr := []int{5, 3, 8, 4, 2}
-	bubbleSort(arr)
+	bubblingSortDown(arr)
 	fmt.Println(arr) // 输出 [2 3 4 5 8]
 }
 
@@ -25,4 +26,11 @@ func TestQui(t *testing.T) {
 	arr := []int{5, 3, 8, 4, 2}
 	quickSort(arr, 0, len(arr)-1)
 	fmt.Println(arr) // 输出 [2 3 4 5 8]
+}
+
+func TestIns(t *testing.T) {
+	// 插排
+	var arr = []int{19, 13, 27, 15, 3, 4, 26, 12, 1, 0}
+	fmt.Println(time.Now().String(), "排序前：", arr)
+	fmt.Println(time.Now().String(), "排序后:", insertSort(arr))
 }

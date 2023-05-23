@@ -1,14 +1,31 @@
 package sort
 
+import "fmt"
+
 // 冒泡
-func bubbleSort(arr []int) {
-	n := len(arr)
-	for i := 0; i < n-1; i++ {
-		for j := 0; j < n-i-1; j++ {
-			if arr[j] > arr[j+1] {
-				// 交换相邻的两个元素
-				arr[j], arr[j+1] = arr[j+1], arr[j]
+// 从大到小
+func bubblingSortUP(tar []int) []int {
+	for i := 0; i < len(tar); i++ {
+		l := len(tar) - i - 1
+		for j := 0; j < l; j++ {
+			if tar[j] < tar[j+1] {
+				tar[j], tar[j+1] = tar[j+1], tar[j]
 			}
+			fmt.Println(i, l, tar)
 		}
 	}
+	return tar
+}
+
+// 从小到大
+func bubblingSortDown(tar []int) []int {
+	for i := 0; i < len(tar); i++ {
+		for j := 0; j < len(tar)-i-1; j++ {
+			if tar[j] > tar[j+1] {
+				tar[j], tar[j+1] = tar[j+1], tar[j]
+			}
+			//fmt.Println(tar)
+		}
+	}
+	return tar
 }

@@ -28,8 +28,7 @@
     - [拦截http改包](proxy/martian.go)
     - [证书](proxy/cert.go)
     - [windows注册表及服务](system/windows.md)
-- 网关
-  - [gosnmp](https://github.com/gosnmp/gosnmp)
+
     
 ## mock
   - [convey](mock_go/convey_test.go)

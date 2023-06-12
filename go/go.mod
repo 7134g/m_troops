@@ -1,6 +1,6 @@
 module m_troops/go
 
-go 1.16
+go 1.18
 
 require (
 	bou.ke/monkey v1.0.2
@@ -25,6 +25,7 @@ require (
 require (
 	github.com/gomodule/redigo v1.8.9
 	github.com/google/go-cmp v0.5.9 // indirect
+	github.com/gorilla/websocket v1.4.2
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/onsi/ginkgo v1.14.2 // indirect
 	github.com/onsi/gomega v1.10.3 // indirect

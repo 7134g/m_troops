@@ -6,6 +6,7 @@
 - [rpc_client](project/rpc_client/main.go)
 - [rpc_serve](project/rpc_client/main.go)
 - [暴力破解7z密码](project/recursion_decode_7z/main.go)
+- [去除重复文件](project/duplication/main.go)
 
 
 ## 代码块和库

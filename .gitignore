@@ -4,9 +4,9 @@ download
 log
 gitfile.sh
 *.log
+*.exe
 test/
-py/sharpe_ratio/data
 
-
-go/common/proxy/cert.sqlite3
-go/common/proxy/mitm.crt
+go/project/duplication/a
+go/project/duplication/b
+go/project/duplication/temp

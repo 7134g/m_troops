@@ -1,10 +1,16 @@
 ### 生成api服务
-- goctl api go -api *.api -dir ../user --style=go_zero
+- mkdir user
+- cd user
+- vim user.api
+- goctl api go -api user.api -dir ./api --style=go_zero
 
 
 
 ### 生成rpc调用
-- goctl rpc protoc *.proto --go_out=../user --go-grpc_out=../user --zrpc_out=../user --style=go_zero
+- mkdir user
+- cd user
+- vim user.proto
+- goctl rpc protoc user.proto --go_out=./rpc/types --go-grpc_out=./rpc/types --zrpc_out=./rpc --style go_zero
 
 
 ### 启动

@@ -10,7 +10,7 @@
 - mkdir user
 - cd user
 - vim user.proto
-- goctl rpc protoc user.proto --go_out=./rpc/types --go-grpc_out=./rpc/types --zrpc_out=./rpc --style go_zero
+- goctl rpc protoc user.proto --go_out=./rpc --go-grpc_out=./rpc --zrpc_out=./rpc --style go_zero
 
 
 ### 启动

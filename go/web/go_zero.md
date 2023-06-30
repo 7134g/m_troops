@@ -1,3 +1,9 @@
+### 依赖
+- go install github.com/zeromicro/go-zero/tools/goctl@latest
+- go get -u github.com/zeromicro/go-zero@latest
+- go install github.com/favadi/protoc-go-inject-tag@latest
+
+
 ### 启动
 - go run user.go
 
@@ -14,7 +20,7 @@
 - cd user
 - vim user.proto
 - goctl rpc protoc user.proto --go_out=./rpc --go-grpc_out=./rpc --zrpc_out=./rpc --style go_zero
-
+- protoc-go-inject-tag -input=./rpc/user/user.pb.go
 
 
 ### 生成 dockerfile 和 k8s 服务发现部署

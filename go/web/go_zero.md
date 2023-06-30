@@ -5,7 +5,8 @@
 
 
 ### 启动
-- go run user.go
+- `go run user.go`
+- `grpcui -plaintext localhost:12345` grpc调试
 
 ### 生成api服务
 - mkdir user

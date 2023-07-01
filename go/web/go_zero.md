@@ -13,7 +13,7 @@
 - mkdir user
 - cd user
 - vim user.api
-- goctl api go -api user.api -dir ./api --style=go_zero
+- goctl api go -api *.api -dir ./api --style=go_zero
 
 
 

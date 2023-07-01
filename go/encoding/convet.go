@@ -42,7 +42,7 @@ func UnicodeToString(form string) (to string, err error) {
 		return
 	}
 	for i, bl, br, r := 0, len(bs), bytes.NewReader(bs), uint16(0); i < bl; i += 2 {
-		binary.Read(br, binary.BigEndian, &r)
+		_ = binary.Read(br, binary.BigEndian, &r)
 		to += string([]rune{rune(r)})
 	}
 	return

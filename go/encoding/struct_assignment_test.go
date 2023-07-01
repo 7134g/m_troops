@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestFilBySetting(t *testing.T) {
+func TestMapToStruct(t *testing.T) {
 	setting := map[string]interface{}{
 		"Name":      "Tom",
 		"Age":       17,
@@ -18,7 +18,7 @@ func TestFilBySetting(t *testing.T) {
 		Scord int
 	}{}
 	fmt.Println("do task ago, stud = ", stud)
-	err := FilBySetting(&stud, setting)
+	err := MapToStruct(&stud, setting)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -29,10 +29,20 @@ func TestFilBySetting(t *testing.T) {
 		ClassName string
 	}{}
 	fmt.Println("do task ago, stud = ", teac)
-	err = FilBySetting(&teac, setting)
+	err = MapToStruct(&teac, setting)
 	if err != nil {
 		fmt.Println(err)
 	}
 	fmt.Println("do task after, stud = ", teac)
 
+}
+
+func TestStructToMap(t *testing.T) {
+	s := struct {
+		Name  string `json:"name"`
+		Age   int    `json:"age"`
+		Email string `json:"email"`
+	}{"John Doe", 30, "john@example.com"}
+
+	t.Log(StructToMap(s))
 }

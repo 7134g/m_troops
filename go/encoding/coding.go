@@ -15,16 +15,10 @@ import (
 	"strings"
 )
 
-const (
-	// MaxResponseBytes 读取返回包最大字节数
-	MaxResponseBytes = 20971520 //20MB
-	RequestTimeout   = 80       // 请求绝对超时时间80s
-)
-
 // URLEscape URL编码
-func URLEscape(path string, espcape_slash bool) string {
+func URLEscape(path string, escapeSlash bool) string {
 	result := url.PathEscape(path)
-	if !espcape_slash {
+	if !escapeSlash {
 		result = strings.Replace(result, "%2F", "/", -1)
 	}
 	return result
@@ -282,9 +276,9 @@ function decodeScript(jsstr){
 };
 `
 
-// HTML转义
-func HtmlEscape(htmlstr string) string {
-	rs := []rune(htmlstr)
+// HtmlEscape HTML转义
+func HtmlEscape(htmlStr string) string {
+	rs := []rune(htmlStr)
 	var html_ string
 	for _, r := range rs {
 		html_ += "&#" + strconv.Itoa(int(r)) + ";" // 网页
@@ -292,7 +286,7 @@ func HtmlEscape(htmlstr string) string {
 	return html_
 }
 
-// HTML反转义
+// HtmlUnescape HTML反转义
 func HtmlUnescape(str string) (string, error) {
 	strs := strings.Split(str, ";")
 	rs := make([]rune, 0, len(strs))

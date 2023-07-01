@@ -5,7 +5,7 @@ import (
 	"reflect"
 )
 
-func FilBySetting(st interface{}, setting map[string]interface{}) error {
+func MapToStruct(st interface{}, setting map[string]interface{}) error {
 	isPtr := reflect.TypeOf(st).Kind() == reflect.Ptr
 	isStruct := reflect.TypeOf(st).Elem().Kind() == reflect.Struct
 	if !isPtr || !isStruct {
@@ -33,4 +33,28 @@ func FilBySetting(st interface{}, setting map[string]interface{}) error {
 	}
 
 	return nil
+}
+
+func StructToMap(obj interface{}) map[string]interface{} {
+	objValue := reflect.ValueOf(obj)
+	if objValue.Kind() == reflect.Ptr {
+		objValue = objValue.Elem()
+	}
+
+	objType := objValue.Type()
+
+	data := make(map[string]interface{})
+	for i := 0; i < objValue.NumField(); i++ {
+		field := objType.Field(i)
+		value := objValue.Field(i).Interface()
+
+		if len(field.Tag.Get("json")) == 0 {
+			data[field.Name] = value
+		} else {
+			data[field.Tag.Get("json")] = value
+		}
+
+	}
+
+	return data
 }

@@ -15,6 +15,8 @@
     - [gin](web/gin.md)
     - [go_zero](web/go_zero.md)
     - [go_micro](web/go_micro.md)
+  
+    - [validate](web/validate.md)
     - [swagger](web/swagger.md)
     - [nsq](web/nsq.md)
     - [gorm](sql)

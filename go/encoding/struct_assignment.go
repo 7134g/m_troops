@@ -58,3 +58,19 @@ func StructToMap(obj interface{}) map[string]interface{} {
 
 	return data
 }
+
+func StructToStruct(dst, src interface{}) {
+	dstValue := reflect.ValueOf(dst).Elem()
+	srcValue := reflect.ValueOf(src).Elem()
+
+	for i := 0; i < srcValue.NumField(); i++ {
+		srcFieldValue := srcValue.Field(i)
+		srcFieldType := srcValue.Type().Field(i)
+
+		dstFieldValue := dstValue.FieldByName(srcFieldType.Name)
+
+		if dstFieldValue.IsValid() && dstFieldValue.CanSet() && dstFieldValue.Type() == srcFieldType.Type {
+			dstFieldValue.Set(srcFieldValue)
+		}
+	}
+}

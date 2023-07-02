@@ -46,3 +46,19 @@ func TestStructToMap(t *testing.T) {
 
 	t.Log(StructToMap(s))
 }
+
+func TestBinding_Stowage(t *testing.T) {
+	type Dst struct {
+		Name string
+	}
+
+	type Src struct {
+		Name string
+	}
+
+	dst := &Dst{}
+	src := &Src{Name: "test"}
+
+	StructToStruct(dst, src)
+	fmt.Println(dst)
+}

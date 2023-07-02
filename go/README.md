@@ -2,6 +2,7 @@
 ## 可编译工具
 - [tcp简易命令工具](project/tcpDialAndServe/main.go)
 - [mqtt_client](project/mqtt/client.go)
+- [etcd_client](project/etcd/client.go)
 - [广播](project/broadcast/main.go)
 - [rpc_client](project/rpc_client/main.go)
 - [rpc_serve](project/rpc_client/main.go)

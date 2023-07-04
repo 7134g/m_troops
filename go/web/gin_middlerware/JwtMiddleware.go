@@ -14,7 +14,6 @@ import (
 func JWTAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		c.ShouldBind()
 		token := c.Request.Header.Get("token")
 		if token == "" {
 			c.JSON(http.StatusOK, gin.H{

@@ -1,0 +1,15 @@
+img/*
+images/*
+.idea/*
+.git/*
+
+./
+README.md
+README_gen.md
+go.mod
+go.sum
+.ignore
+build.bat
+
+*.exe
+*.go

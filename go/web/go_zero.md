@@ -3,6 +3,7 @@
 - go get -u github.com/zeromicro/go-zero@latest
 - go install github.com/favadi/protoc-go-inject-tag@latest
 - go get github.com/go-playground/validator/v10
+- go get github.com/Masterminds/squirrel
 
 
 ### 启动

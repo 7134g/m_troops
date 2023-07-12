@@ -9,6 +9,10 @@
 - `go run user.go`
 - `grpcui -plaintext localhost:12345` grpc调试
 
+### 生成cache model
+- goctl model mysql datasource -url="user:password@tcp(127.0.0.1:3306)/database" -table="*"  -dir="./model"
+
+
 ### 生成api服务
 - mkdir user
 - cd user

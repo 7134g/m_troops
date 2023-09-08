@@ -67,7 +67,7 @@ func copyFile() []string {
 	ext := path.Ext(fileName)
 	for i := 0; i < 5; i++ {
 		fn := strings.ReplaceAll(fileName, ext, "")
-		fnPath := filepath.Join("pack", fmt.Sprintf("%s_%d%s", fn, i, ext))
+		fnPath := filepath.Join("pack", fmt.Sprintf("%s_%d%s", fn, time.Now().Unix(), ext))
 		f, err := os.Create(fnPath)
 		if err != nil {
 			panic(err)

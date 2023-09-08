@@ -9,6 +9,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -22,14 +23,18 @@ import (
 //		"A","B","C","D","E","F","G","H","I","J","K","L","M","N",
 //		"O","P","Q","R","S","T","U","V","W","X","Y","Z",
 //	}
-var characters = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.!@#$%^&*()_+-=[]{}|;\':",<>?/`
+//
+// var characters = `abcdefghijklmnopqrstuvwxyz0123456789`
+//var characters = "0123456789"
 
-// var characters = "0123456789"
+var characters = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.!@#$%^&*()_+-=[]{}|;\':",<>?/`
 var lenPW = 6    // 密码最大长度
-var lenMinPW = 0 // 密码起始长度
+var lenMinPW = 2 // 密码起始长度
 var fileName = `nothing.zip`
 var dirName = "nothing"
-var passwordChan = make(chan string, 2)
+var passwordChan = make(chan string, 10)
+var stop bool
+var group sync.WaitGroup
 
 func main() {
 	flag.StringVar(&characters, "k", characters, "用来构造密码的内容，默认值："+characters)
@@ -44,13 +49,19 @@ func main() {
 
 	go monitor()
 	for _, fn := range copyFile() {
+		group.Add(1)
 		go run(fn)
 	}
 
-	generateAllPossibleStrings(lenPW)
+	go generateAllPossibleStrings(lenPW)
+
+	group.Wait()
+	fmt.Println("任务结束")
 }
 
 func copyFile() []string {
+	_ = os.MkdirAll("pack", os.ModeDir)
+
 	fns := make([]string, 0)
 	fs := make([]io.Writer, 0)
 	ext := path.Ext(fileName)
@@ -79,10 +90,11 @@ func copyFile() []string {
 }
 
 func generateAllPossibleStrings(lenPW int) {
-	for i := 0; i <= lenPW; i++ {
+	for i := lenMinPW; i <= lenPW; i++ {
 		generate("", characters, i)
 	}
 
+	close(passwordChan)
 }
 
 func generate(prefix string, characters string, remainingLength int) {
@@ -98,16 +110,35 @@ func generate(prefix string, characters string, remainingLength int) {
 	}
 }
 
-func run(fileName string) {
-	dirName = strings.ReplaceAll(fileName, path.Ext(fileName), "")
+func run(fn string) {
+	defer func() {
+		stop = true
+		group.Done()
+		//fmt.Printf("任务 %s 退出\n", fn)
+	}()
+	dn := strings.ReplaceAll(fn, path.Ext(fn), "")
 	_ = os.MkdirAll(dirName, os.ModeDir)
 
 	ticker := time.NewTicker(time.Second * 30)
 	for {
+		if stop {
+			_ = os.RemoveAll(dn)
+			_ = os.RemoveAll(fn)
+			return
+		}
+
 		select {
 		case pw := <-passwordChan:
+			if pw == "" {
+				return
+			}
+
 			atomic.AddInt64(&count, 1)
-			work(fileName, dirName, pw)
+			if work(fn, dn, pw) {
+				fmt.Printf("fileName =====> %s password ===> %s  count ====> %d\n", fn, pw, count)
+				_ = os.Remove(fn)
+				return
+			}
 			ticker.Reset(time.Second * 5)
 		case <-ticker.C:
 			fmt.Println("time over")
@@ -116,23 +147,21 @@ func run(fileName string) {
 	}
 }
 
-func work(fileName, dirName, pw string) {
-	//fmt.Println(pw)
+func work(fileName, dirName, pw string) bool {
+	fmt.Println(pw)
 	ext := path.Ext(fileName)
 	switch ext {
 	case ".zip":
 		if err := DeCompressZip(fileName, dirName, pw, nil, 0); err == nil {
-			fmt.Printf("ok ===> %s  count ====> %d\n", pw, count)
-			os.Exit(0)
+			return true
 		}
 	case ".rar":
 		if err := DeCompressRar(fileName, dirName, pw); err == nil {
-			fmt.Printf("ok ===> %s  count ====> %d\n", pw, count)
-			os.Exit(0)
+			return true
 		}
 	default:
 		panic("file type err")
-
 	}
 
+	return false
 }

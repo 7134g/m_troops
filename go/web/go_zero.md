@@ -3,11 +3,16 @@
 - go get -u github.com/zeromicro/go-zero@latest
 - go install github.com/favadi/protoc-go-inject-tag@latest
 - go get github.com/go-playground/validator/v10
+- go get github.com/Masterminds/squirrel
 
 
 ### 启动
 - `go run user.go`
 - `grpcui -plaintext localhost:12345` grpc调试
+
+### 生成cache model
+- goctl model mysql datasource -url="user:password@tcp(127.0.0.1:3306)/database" -table="*"  -dir="./model"
+
 
 ### 生成api服务
 - mkdir user

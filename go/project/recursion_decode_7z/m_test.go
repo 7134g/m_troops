@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/mholt/archiver"
 	"os"
 	"testing"
 )
@@ -40,4 +41,11 @@ func TestDecrypt(t *testing.T) {
 		fmt.Println("=======================")
 	}
 
+}
+func TestRar(t *testing.T) {
+	fileName := "nothing.rar"
+	rar := archiver.NewRar()
+	rar.Password = "111"
+	rar.OverwriteExisting = true
+	t.Log(rar.Unarchive(fileName, "./nothing"))
 }

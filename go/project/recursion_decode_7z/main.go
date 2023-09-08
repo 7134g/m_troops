@@ -136,6 +136,7 @@ func run(fn string) {
 			atomic.AddInt64(&count, 1)
 			if work(fn, dn, pw) {
 				fmt.Printf("fileName =====> %s password ===> %s  count ====> %d\n", fn, pw, count)
+				savePassword(pw)
 				_ = os.Remove(fn)
 				return
 			}
@@ -164,4 +165,15 @@ func work(fileName, dirName, pw string) bool {
 	}
 
 	return false
+}
+
+func savePassword(pw string) {
+	f, err := os.Create("password.txt")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer f.Close()
+
+	_, _ = f.Write([]byte(pw))
 }

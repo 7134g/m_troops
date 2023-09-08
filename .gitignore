@@ -10,7 +10,10 @@ download
 log
 test/
 .idea/
+
 go/project/duplication/a
 go/project/duplication/b
 go/project/duplication/temp
+
 go/project/recursion_decode_7z/pack
+go/project/recursion_decode_7z/password.txt

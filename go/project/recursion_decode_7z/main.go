@@ -3,10 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"path"
+	"strings"
 )
 
 // D:\software\7-Zip\7z.exe x -p 大学.7z
@@ -24,6 +25,7 @@ var characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 var lenPW = 6 // 密码最大长度
 var fileName = `nothing.zip`
 var decodePath = "D:\\software\\7-Zip\\7z.exe"
+var dirName = "nothing"
 
 func main() {
 	flag.StringVar(&characters, "k", characters, "用来构造密码的内容，默认值："+characters)
@@ -31,6 +33,12 @@ func main() {
 	flag.StringVar(&fileName, "n", fileName, "默认为测试文件 nothing.zip")
 	flag.StringVar(&decodePath, "dp", decodePath, "解压程序路径")
 	flag.Parse()
+
+	if _, err := os.Stat(fileName); err != nil {
+		log.Fatal("找不到", fileName)
+	}
+	dirName = strings.ReplaceAll(fileName, path.Ext(fileName), "")
+	_ = os.MkdirAll(dirName, os.ModeDir)
 
 	generateAllPossibleStrings(lenPW)
 }
@@ -57,7 +65,7 @@ func generate(prefix string, characters string, remainingLength int) {
 
 func run(pw string) {
 	fmt.Println(pw)
-	cmd := exec.Command(decodePath, "x", "-otemp", "-p"+pw, fileName)
+	cmd := exec.Command(decodePath, "x", "-o"+dirName, "-p"+pw, fileName)
 	if err := cmd.Run(); err != nil {
 		removeDir()
 	} else {
@@ -67,7 +75,7 @@ func run(pw string) {
 }
 
 func removeDir() {
-	dirs, err := ioutil.ReadDir("temp")
+	dirs, err := os.ReadDir(dirName)
 	if err != nil {
 		return
 	}

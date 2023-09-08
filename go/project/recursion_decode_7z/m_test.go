@@ -1,13 +1,14 @@
 package main
 
 import (
-	"sync/atomic"
+	"path"
+	"strings"
 	"testing"
 )
 
 func TestName(t *testing.T) {
-	var count atomic.Int64
 
-	count.Add(1)
+	dirName := strings.ReplaceAll(fileName, path.Ext(fileName), "")
+	t.Log(dirName)
 
 }

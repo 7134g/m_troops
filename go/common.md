@@ -33,9 +33,14 @@ go get github.com/google/martian
 
 #### web框架
 
-go get github.com/gin-gonic/gin
-go get github.com/zeromicro/go-zero
-go get github.com/gorilla/websocket
-go get gorm.io/gorm
-go get gorm.io/driver/sqlite
-go get gorm.io/driver/mysql
+`go get github.com/gin-gonic/gin`
+
+`go get github.com/zeromicro/go-zero`
+
+`go get github.com/gorilla/websocket`
+
+`go get gorm.io/gorm`
+
+`go get gorm.io/driver/sqlite`
+
+`go get gorm.io/driver/mysql`

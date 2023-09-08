@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
 	"path"
 	"strings"
+	"sync/atomic"
 )
 
 // D:\software\7-Zip\7z.exe x -p 大学.7z
@@ -24,14 +24,12 @@ var characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 // var characters = "0123456789"
 var lenPW = 6 // 密码最大长度
 var fileName = `nothing.zip`
-var decodePath = "D:\\software\\7-Zip\\7z.exe"
 var dirName = "nothing"
 
 func main() {
 	flag.StringVar(&characters, "k", characters, "用来构造密码的内容，默认值："+characters)
 	flag.IntVar(&lenPW, "l", lenPW, "默认密码长度为6")
 	flag.StringVar(&fileName, "n", fileName, "默认为测试文件 nothing.zip")
-	flag.StringVar(&decodePath, "dp", decodePath, "解压程序路径")
 	flag.Parse()
 
 	if _, err := os.Stat(fileName); err != nil {
@@ -40,11 +38,13 @@ func main() {
 	dirName = strings.ReplaceAll(fileName, path.Ext(fileName), "")
 	_ = os.MkdirAll(dirName, os.ModeDir)
 
+	go monitor()
+
 	generateAllPossibleStrings(lenPW)
 }
 
 func generateAllPossibleStrings(lenPW int) {
-	for i := 1; i <= lenPW; i++ {
+	for i := 4; i <= lenPW; i++ {
 		generate("", characters, i)
 	}
 
@@ -64,23 +64,10 @@ func generate(prefix string, characters string, remainingLength int) {
 }
 
 func run(pw string) {
+	atomic.AddInt64(&count, 1)
 	fmt.Println(pw)
-	cmd := exec.Command(decodePath, "x", "-o"+dirName, "-p"+pw, fileName)
-	if err := cmd.Run(); err != nil {
-		removeDir()
-	} else {
+	if err := DeCompressZip(fileName, dirName, pw, nil, 0); err == nil {
 		fmt.Println("ok ===> ", pw)
 		os.Exit(0)
-	}
-}
-
-func removeDir() {
-	dirs, err := os.ReadDir(dirName)
-	if err != nil {
-		return
-	}
-	for _, dir := range dirs {
-		p := path.Join([]string{"temp", dir.Name()}...)
-		_ = os.RemoveAll(p)
 	}
 }

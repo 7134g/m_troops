@@ -2,11 +2,11 @@
 ## 可编译工具
 - [tcp简易命令工具](project/tcpDialAndServe/main.go)
 - [mqtt_client](project/mqtt/client.go)
-- [etcd_client](project/etcd/client.go)
+- [etcd_client](project/rpc/etcd/client.go)
 - [广播](project/broadcast/main.go)
-- [rpc_client](project/rpc_client/main.go)
-- [rpc_serve](project/rpc_client/main.go)
-- [暴力破解7z密码](project/recursion_decode_7z/main.go)
+- [rpc_client](project/rpc/rpc_client/main.go)
+- [rpc_serve](project/rpc/rpc_client/main.go)
+- [暴力破解7z密码](project/recursion_decode_zip/main.go)
 - [去除重复文件](project/duplication/main.go)
 
 

@@ -26,11 +26,15 @@ var (
 	detailsEndMarkdown = "\n\n</details>\n"
 )
 
+// params
 var (
-	emptyStatus  = false // 是否还未开始写入文件
 	openDetail   = false // 生成折叠版本
 	markdownName = "README_gen.md"
+	targetPath   = "./"
+)
 
+var (
+	emptyStatus    = false // 是否还未开始写入文件
 	ignoreFileName = ".ignore"
 	ignoreFileByte []byte
 	ignore         = make([]string, 0)
@@ -42,6 +46,7 @@ func main() {
 
 	flag.BoolVar(&openDetail, "z", false, "生成折叠版本")
 	flag.StringVar(&markdownName, "n", markdownName, "设置名称")
+	flag.StringVar(&targetPath, "l", targetPath, "选择路径，默认值： ./ ")
 	flag.Parse()
 
 	loadGitignore()
@@ -52,7 +57,8 @@ func main() {
 	defer f.Close()
 
 	m := map[string]map[string]struct{}{}
-	_ = filepath.Walk("./", func(path string, info fs.FileInfo, err error) error {
+	//absPath, _ := filepath.Abs(targetPath)
+	_ = filepath.Walk(targetPath, func(path string, info fs.FileInfo, err error) error {
 		if strings.Contains(path, "main.go") {
 			fmt.Println()
 		}

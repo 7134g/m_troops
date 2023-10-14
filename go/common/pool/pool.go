@@ -26,13 +26,13 @@ const (
 	Idling  int = 2
 )
 
-//需要执行的任务
+// 需要执行的任务
 type Task struct {
 	TaskFunc func([]interface{})
 	Param    []interface{}
 }
 
-//工人
+// 工人
 type worker struct {
 	task          chan *Task //工人工作任务，同一时间只能做一个
 	startWaitTime time.Time  //工人开始等待的时间
@@ -40,21 +40,21 @@ type worker struct {
 	mtx           sync.RWMutex
 }
 
-//设置工作状态
+// 设置工作状态
 func (w *worker) changeStatus(status int) {
 	w.mtx.Lock()
 	defer w.mtx.Unlock()
 	w.status = status
 }
 
-//获取当前工作状态
+// 获取当前工作状态
 func (w *worker) currentStatus() int {
 	w.mtx.RLock()
 	defer w.mtx.RUnlock()
 	return w.status
 }
 
-//厂房
+// 厂房
 type Pool struct {
 	capacity       int32         //容量
 	pruneDuration  time.Duration //清理时间间隔
@@ -69,19 +69,19 @@ type Pool struct {
 	Ctx            context.Context // 控制是否终止协程
 }
 
-//正在工作的工人数
+// 正在工作的工人数
 func (p *Pool) Running() int32 {
 	p.mtx.Lock()
 	defer p.mtx.Unlock()
 	return int32(len(p.workers))
 }
 
-//厂房能容纳同时工作的工人数量
+// 厂房能容纳同时工作的工人数量
 func (p *Pool) Cap() int32 {
 	return atomic.LoadInt32(&p.capacity)
 }
 
-//新建一个厂房
+// 新建一个厂房
 func NewPool(size int32, prune bool, expiry_time time.Duration) (*Pool, context.CancelFunc) {
 	ctx, cancel := context.WithCancel(context.Background())
 	p := &Pool{
@@ -99,7 +99,7 @@ func NewPool(size int32, prune bool, expiry_time time.Duration) (*Pool, context.
 	return p, cancel
 }
 
-//定期清理过期的工人, 在厂房关闭前至少保留一个工人在工作
+// 定期清理过期的工人, 在厂房关闭前至少保留一个工人在工作
 func (p *Pool) periodicallyPurge() {
 	heartbeat := time.NewTicker(p.pruneDuration)
 	defer heartbeat.Stop()
@@ -143,7 +143,7 @@ func (p *Pool) periodicallyPurge() {
 	}
 }
 
-//提交一个任务
+// 提交一个任务
 func (p *Pool) Submit(task *Task) error {
 	//没有厂房或厂房已关闭，那么报错
 	if p == nil {
@@ -160,7 +160,7 @@ func (p *Pool) Submit(task *Task) error {
 	return nil
 }
 
-//安排一个工人
+// 安排一个工人
 func (p *Pool) getWorker() *worker {
 	var wk *worker
 	if p.Running() > p.Cap() { //如果超过上限，则清理掉一部分已完成任务的worker
@@ -212,7 +212,7 @@ func (p *Pool) getWorker() *worker {
 	return wk
 }
 
-//让工人开始接收任务
+// 让工人开始接收任务
 func (p *Pool) startWork(worker *worker) {
 	go func() {
 		for {
@@ -236,7 +236,7 @@ func (p *Pool) startWork(worker *worker) {
 	}()
 }
 
-//调整厂房工人的数量
+// 调整厂房工人的数量
 func (p *Pool) ReSize(size int32) {
 	//数量刚刚好
 	if size == p.Cap() {
@@ -249,12 +249,12 @@ func (p *Pool) ReSize(size int32) {
 	atomic.StoreInt32(&p.capacity, size)
 }
 
-//等待正在工作中的工人完成任务
+// 等待正在工作中的工人完成任务
 func (p *Pool) Wait() {
 	p.wg.Wait()
 }
 
-//关闭协程池，让所有worker退出运行以防goroutine泄露,必须先调用Wait
+// 关闭协程池，让所有worker退出运行以防goroutine泄露,必须先调用Wait
 func (p *Pool) Close() {
 	p.once.Do(func() {
 		//通知清理协程退出

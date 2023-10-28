@@ -76,11 +76,19 @@ func sendEmail(cfg *configInfo, e *emailContent) error {
 }
 
 var (
-	fileName string
-	plain    string
+	serveEmail     string
+	serveEmailPort string
+	fromEmail      string
+	toEmail        string
+	fileName       string
+	plain          string
 )
 
 func main() {
+	flag.StringVar(&serveEmail, "s", "mail.snapmail.cc", "发送方")
+	flag.StringVar(&serveEmailPort, "sp", "25", "发送方")
+	flag.StringVar(&fromEmail, "l", "alaugbicv@snapmail.cc", "发送方")
+	flag.StringVar(&toEmail, "r", "ablo804700@snapmail.cc", "接收方")
 	flag.StringVar(&fileName, "f", "", "文件名")
 	flag.StringVar(&plain, "t", "test message", "文件名")
 	flag.Parse()
@@ -102,18 +110,18 @@ func main() {
 	// 收集配置信息
 	config := configInfo{
 		// smtp服务器地址
-		smtpAddr: "mail.snapmail.cc",
+		smtpAddr: serveEmail,
 		// smtp服务器密钥
 		secret: "",
 		// smtp服务器端口
-		smtpPort: "25",
+		smtpPort: serveEmailPort,
 	}
 	// 收集邮件内容
 	content := emailContent{
 		// 发件人
-		fromAddr: "alaugbicv@snapmail.cc",
+		fromAddr: fromEmail,
 		// 收件人(可有多个)
-		toAddr: []string{"ablo804700@snapmail.cc"},
+		toAddr: []string{toEmail},
 		// 邮件格式
 		contentType: "text",
 		// 邮件主题

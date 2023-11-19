@@ -85,12 +85,12 @@ var (
 )
 
 func main() {
-	flag.StringVar(&serveEmail, "s", "mail.snapmail.cc", "发送方")
-	flag.StringVar(&serveEmailPort, "sp", "25", "发送方")
+	flag.StringVar(&serveEmail, "s", "mail.snapmail.cc", "邮箱根路径")
+	flag.StringVar(&serveEmailPort, "sp", "25", "邮箱根路径端口")
 	flag.StringVar(&fromEmail, "l", "test@snapmail.cc", "发送方")
 	flag.StringVar(&toEmail, "r", "test@snapmail.cc", "接收方")
 	flag.StringVar(&fileName, "f", "", "文件名")
-	flag.StringVar(&plain, "t", "test message", "文件名")
+	flag.StringVar(&plain, "t", "test message", "直接发生文本内容")
 	flag.Parse()
 
 	if _, err := os.Stat(fileName); err != nil {

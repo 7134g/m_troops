@@ -1,0 +1,43 @@
+Name: base
+Host: 127.0.0.1
+Port: 20000
+Mode: dev
+
+Log:
+  Encoding: plain
+  Level: debug
+
+Timeout: 60000
+
+MysqlConfig:
+  User: root
+  Passwd: mysql
+  Addr: 127.0.0.1:3306
+  DBName: demo
+  Net: tcp
+  Params:
+    charset: utf8mb4,utf8
+
+MongoConfig:
+  User: root
+  Passwd: mysql
+  Addr: 127.0.0.1:3306
+
+Redis:
+  Host: 127.0.0.1:6379
+  Type: node
+
+
+Cache:
+  - Host: 127.0.0.1:6379
+    Pass:
+
+PaymentRpcConf:
+  Endpoints:
+    - 127.0.0.1:2002
+  NonBlock: true
+
+TravelRpcConf:
+  Endpoints:
+    - 127.0.0.1:2003
+  NonBlock: true

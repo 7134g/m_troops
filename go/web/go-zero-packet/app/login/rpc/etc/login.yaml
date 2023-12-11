@@ -1,0 +1,23 @@
+Name: login.rpc
+ListenOn: 127.0.0.1:10001
+Mode: dev
+Log:
+#  Encoding: plain
+  Level: debug
+
+Etcd:
+  Hosts:
+    - 127.0.0.1:2379
+  Key: login.rpc
+
+Redis:
+  Host: 127.0.0.1:6379
+  Type: node
+  Key: webRTC
+
+
+User:
+  Username: root
+  Password: "123456"
+
+

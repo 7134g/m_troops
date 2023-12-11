@@ -1,0 +1,16 @@
+syntax = "v1"
+
+type (
+    DbQueryList {
+        Page int `json:"page,range=[0:),default=1,optional"`
+        Size int `json:"size,range=(:500],default=10,optional"`
+        OrderKey string `json:"order_key,optional"`                            // 排序字段
+        Order string `json:"order,options=[desc,asc],optional"` // 排序逻辑
+        Where map[string]interface{} `json:"where,optional"`
+    }
+
+    DbQueryListResponse {
+        Total int64 `json:"total"`
+        List interface{} `json:"list"`
+    }
+)

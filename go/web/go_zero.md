@@ -1,3 +1,6 @@
+## example-packet
+ - [README.md](go-zero-packet/README.md)
+
 ### 依赖
 - go install github.com/zeromicro/go-zero/tools/goctl@latest
 - go get -u github.com/zeromicro/go-zero@latest

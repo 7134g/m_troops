@@ -1,0 +1,31 @@
+syntax = "v1"
+
+type LoginRequest {
+	Username string `json:"username" validate:"min=0,max=10"`
+	Password string `json:"password" validate:"min=0,max=10"`
+}
+
+type LoginResponse {
+	Token string `json:"token"`
+}
+
+type HomeRequest {
+}
+
+type HomeResponse {}
+
+service login-api {
+	@doc(
+		summary: "登录"
+	)
+	@handler login
+	post /login (LoginRequest) returns (LoginResponse)
+}
+
+@server(
+//	middleware: LogTest
+)
+service login-api {
+	@handler Home
+	get / (HomeRequest) returns(HomeResponse)
+}

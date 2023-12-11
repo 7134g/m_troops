@@ -1,0 +1,20 @@
+Name: login-api
+Host: 127.0.0.1
+Port: 20001
+Mode: dev
+Log:
+#  Encoding: plain
+  Level: debug
+
+Timeout: 600000
+
+RpcAdminCfg:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: login.rpc
+  NonBlock: true
+
+Redis:
+  Host: 127.0.0.1:6379
+  Type: node

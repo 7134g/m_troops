@@ -1,0 +1,24 @@
+Name: manage-api
+Host: 0.0.0.0
+Port: 8888
+
+MysqlConfig:
+  DBName: demo
+  User: root
+  Passwd: mysql
+  Addr: 127.0.0.1:3306
+
+MongoConfig:
+  User: root
+  Passwd: 123456
+  Addr: 127.0.0.1:27017
+  DBName: demo
+
+RedisConfig:
+  Host: 127.0.0.1:6379
+  Type: node
+
+
+Auth:
+  AccessSecret: user
+  AccessExpire: 3600

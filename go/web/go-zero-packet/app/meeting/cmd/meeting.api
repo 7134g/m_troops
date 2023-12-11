@@ -1,0 +1,61 @@
+syntax = "v1"
+
+info(
+    title: "视频通话"
+    desc: "会议增删改查"
+    author: "7134"
+    version: "v1"
+)
+
+import "query.api"
+
+type (
+    ListReq {
+        Pager
+    }
+
+    ListResp {
+        List interface{} `json:"list"`
+        Total uint64 `json:"total"`
+    }
+)
+
+type (
+    CreateReq {
+    }
+
+    CreateResp struct{
+    }
+)
+
+type (
+    UpdateReq struct{
+    }
+    UpdateResp struct{
+    }
+)
+
+type (
+    DeleteReq struct{
+    }
+    DeleteResp struct{
+    }
+)
+
+@server(
+    prefix:     /api/meeting
+    jwt: Auth
+)
+service manage-api {
+    @handler List
+    post /list (ListReq) returns (ListResp)
+
+    @handler Create
+    post /create (CreateReq) returns (CreateResp)
+
+    @handler Update
+    put /update (UpdateReq) returns (UpdateResp)
+
+    @handler Delete
+    put /delete (DeleteReq) returns (DeleteResp)
+}

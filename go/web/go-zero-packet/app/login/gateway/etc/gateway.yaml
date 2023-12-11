@@ -1,0 +1,19 @@
+Name: demo1-gateway
+Host: localhost
+Port: 30001
+Mode: dev
+Upstreams:
+  - Grpc:
+      Target: 127.0.0.1:10001
+    # protoset mode
+    ProtoSets:
+      - ./pb/login.pb
+    # Mappings can also be written in proto options
+    Mappings:
+      - Method: post
+        Path: /auth
+        RpcPath: login.Login/Auth
+
+      - Method: post
+        Path: /login
+        RpcPath: login.Login/Login

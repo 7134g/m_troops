@@ -9,6 +9,7 @@ __pycache__
 download
 log
 test/
+tests/
 .idea/
 
 go/project/duplication/a

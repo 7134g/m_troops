@@ -37,7 +37,7 @@
     - [拦截http改包](common/proxy/martian.go)
     - [证书](common/proxy/cert.go)
     - [windows注册表及服务](common/system/windows.md)
-- [夏普率](common/finance/sharpe.md)
+- [夏普率](project/finance/sharpe.md)
 
     
 ## mock

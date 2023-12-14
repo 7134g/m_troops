@@ -7,17 +7,17 @@ import (
 )
 
 // NewDial 优化通过tcp下载文件超时逻辑
-func NewDial(network, address string, timeout time.Duration) (Conn, error) {
+func NewDial(network, address string, interval time.Duration) (Conn, error) {
 	var err error
 	c := Conn{}
-	c.timeout = timeout
+	c.timeout = interval
 	c.ticker = time.NewTicker(c.timeout)
 	c.nc, err = net.Dial(network, address)
 
 	go func() {
 		select {
 		case <-c.ticker.C:
-			log.Println("timeout")
+			log.Println("interval timeout")
 			_ = c.nc.Close()
 		}
 	}()

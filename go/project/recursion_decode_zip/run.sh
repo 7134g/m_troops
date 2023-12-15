@@ -1,2 +1,4 @@
-./decode7z.exe -l 8 lm 4 -n nothing.zip
+#!/bin/bash
+
+./decode7z -max 8 -min 4 -f nothing.zip -k 1234567
 

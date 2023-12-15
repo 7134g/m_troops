@@ -8,7 +8,8 @@ import (
 )
 
 func init() {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	//log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.SetFlags(log.LstdFlags)
 }
 
 // D:\software\7-Zip\7z.exe x -p 大学.7z
@@ -22,9 +23,9 @@ func init() {
 //	}
 //
 // var characters = `abcdefghijklmnopqrstuvwxyz0123456789`
-var characters = "1234567"
+//var characters = "0123456789"
 
-//var characters = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.!@#$%^&*()_+-=[]{}|;\':",<>?/`
+var characters = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.!@#$%^&*()_+-=[]{}|;\':",<>?/`
 
 var maxLen int      // 密码最大长度
 var minLen int      // 密码起始长度

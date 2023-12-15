@@ -14,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -37,7 +38,7 @@ type ZipCrypto struct {
 	Keys     [3]uint32
 }
 
-func NewZipCrypto(passphrase []byte) *ZipCrypto {
+func newZipCrypto(passphrase []byte) *ZipCrypto {
 	z := &ZipCrypto{}
 	z.password = passphrase
 	z.init()
@@ -93,7 +94,7 @@ func crc32update(pCrc32 uint32, b byte) uint32 {
 }
 
 func ZipCryptoDecrypt(r *io.SectionReader, password []byte) (*io.SectionReader, error) {
-	z := NewZipCrypto(password)
+	z := newZipCrypto(password)
 	b := make([]byte, r.Size())
 	_, _ = r.Read(b)
 
@@ -269,11 +270,6 @@ func NewDeCompressZip(zipFile, dest string) (*DeCompressZip, error) {
 	}
 
 	uz := &DeCompressZip{lock: &sync.Mutex{}, src: zipFile, dst: dest, concurrence: 1}
-	zr, err := zip.NewReader(uz, uz.Size())
-	if err != nil {
-		log.Fatal(err)
-	}
-	uz.zr = zr
 	if err := uz.init(); err != nil {
 		return nil, err
 	}
@@ -286,14 +282,14 @@ func (uz *DeCompressZip) SetPasswdTask(passChan chan string, concurrence uint) {
 	uz.concurrence = concurrence
 }
 
-func (uz *DeCompressZip) tryDecrypt(zf *zip.File) (bool, error) {
+func (uz *DeCompressZip) tryDecrypt(number int, zf *zip.File) (bool, error) {
 	inFile, err := zf.Open()
 	if err != nil {
 		return false, err
 	}
 	defer inFile.Close()
 
-	fPath := filepath.Join(tempDir, fmt.Sprintf("%p", zf))
+	fPath := filepath.Join(tempDir, fmt.Sprintf("%d", number))
 	outFile, err := os.OpenFile(fPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, zf.Mode())
 	if err != nil {
 		return false, err
@@ -343,14 +339,16 @@ func (uz *DeCompressZip) verifyPasswd() bool {
 					return
 				}
 
+				atomic.AddInt64(&cryptCount, 1)
+
 				zr.RegisterDecompressor(zip.Deflate, func(r io.Reader) io.ReadCloser {
 					rs := r.(*io.SectionReader)
 					r, _ = ZipCryptoDecrypt(rs, []byte(passwd))
 					return flate.NewReader(r)
 				})
-				ok, err := uz.tryDecrypt(targetFile)
+				ok, err := uz.tryDecrypt(number, targetFile)
 				if err != nil {
-					log.Printf("%s passwd: %s err: %v\n", workerName, passwd, err)
+					//log.Printf("%s passwd: %s err: %v\n", workerName, passwd, err)
 					continue
 				}
 				if !ok {
@@ -360,14 +358,13 @@ func (uz *DeCompressZip) verifyPasswd() bool {
 				// 锁
 				uz.lock.Lock()
 				log.Println(workerName, "crypt success: ", passwd)
-				cancel()
+				cancel() // 关闭其他解析 goroutin
 				success = ok
-				if uz.passwd != "" {
+				if uz.passwd == "" {
 					uz.passwd = passwd
 				}
-				uz.zr = zr
 				uz.lock.Unlock()
-
+				return
 			case <-ctx.Done():
 				return
 			}
@@ -394,6 +391,17 @@ func (uz *DeCompressZip) run() error {
 	if !success {
 		return errors.New("crypt zip is error")
 	}
+
+	zr, err := zip.NewReader(uz, uz.Size())
+	if err != nil {
+		log.Fatal(err)
+	}
+	uz.zr = zr
+	uz.zr.RegisterDecompressor(zip.Deflate, func(r io.Reader) io.ReadCloser {
+		rs := r.(*io.SectionReader)
+		r, _ = ZipCryptoDecrypt(rs, []byte(uz.passwd))
+		return flate.NewReader(r)
+	})
 
 	for _, f := range uz.zr.File {
 		fpath := filepath.Join(uz.dst, f.Name)

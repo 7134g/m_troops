@@ -1,3 +1,6 @@
+### 破解
+目前只支持 zip
+
 ### build
 
 `go build .`

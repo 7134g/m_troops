@@ -153,9 +153,10 @@ func work(fileName, dirName, pw string) bool {
 	ext := path.Ext(fileName)
 	switch ext {
 	case ".zip":
-		if err := DeCompressZip(fileName, dirName, pw, nil, 0); err == nil {
-			return true
-		}
+		NewDeCompressZip(fileName, dirName)
+		//if err := DeCompressZip(fileName, dirName, pw, nil, 0); err == nil {
+		//	return true
+		//}
 	case ".rar":
 		if err := DeCompressRar(fileName, dirName, pw); err == nil {
 			return true

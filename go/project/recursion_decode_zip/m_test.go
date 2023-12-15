@@ -2,50 +2,39 @@ package main
 
 import (
 	"fmt"
-	"github.com/mholt/archiver"
-	"os"
+	"log"
 	"testing"
+	"time"
 )
 
-func TestName(t *testing.T) {
-	err := DeCompressZip("nothing1.zip", "./nothing", "123456", nil, 0)
-	if err != nil {
-		fmt.Println(err)
-	}
-	return
+func init() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
 
-func TestDecrypt(t *testing.T) {
-	f, err := os.Open("nothing.zip")
+func TestNewUnzip(t *testing.T) {
+	uz, err := NewDeCompressZip("nothing.zip", "./")
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 
-	info, err := f.Stat()
-	if err != nil {
-		t.Fatal(err)
+	passChan := make(chan string, 10)
+	go func() {
+		for i := 111111; i < 1000000; i++ {
+			passChan <- fmt.Sprintf("%d", i)
+		}
+	}()
+
+	time.Sleep(time.Second)
+	uz.SetPasswdTask(passChan, 3)
+	if err := uz.run(); err != nil {
+		log.Println(err)
 	}
 
-	b := make([]byte, info.Size())
-	_, _ = f.Read(b)
-
-	pwList := []string{
-		"123",
-		"111",
-	}
-
-	for _, pw := range pwList {
-		z := NewZipCrypto([]byte(pw))
-		m := z.Decrypt(b)
-		fmt.Println(string(m))
-		fmt.Println("=======================")
-	}
-
-}
-func TestRar(t *testing.T) {
-	fileName := "nothing.rar"
-	rar := archiver.NewRar()
-	rar.Password = "111"
-	rar.OverwriteExisting = true
-	t.Log(rar.Unarchive(fileName, "./nothing"))
+	//if _, err := uz.tryDecrypt("111111"); err != nil {
+	//	log.Println(err)
+	//}
+	//
+	//if _, err := uz.tryDecrypt("123456"); err != nil {
+	//	log.Println(err)
+	//}
 }

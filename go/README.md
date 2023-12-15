@@ -9,7 +9,7 @@
 - [广播](project/broadcast/main.go)
 - [rpc_client](project/rpc/rpc_client/main.go)
 - [rpc_serve](project/rpc/rpc_client/main.go)
-- [暴力破解7z密码](project/recursion_decode_zip/main.go)
+- [暴力破解压缩包](project/recursion_decode/main.go)
 - [去除重复文件](project/duplication/main.go)
 
 

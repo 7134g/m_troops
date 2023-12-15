@@ -5,7 +5,7 @@
 3. [rpc相关连接](rpc)
 4. [生成markdown文档](gen_markdown)
 5. [mqtt客户端连接](mqtt/client.go)
-7. [暴力破解zip](recursion_decode_zip/main.go)
+7. [暴力破解压缩包](recursion_decode/main.go)
 8. [tcp服务端和客户端](tcpDialAndServe/README.md)
 
 

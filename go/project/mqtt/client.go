@@ -32,7 +32,7 @@ func connMQTT(broker, user, passwd string) (bool, MQTT.Client) {
 // 订阅消息
 func subscribe() {
 	// sub的用户名和密码
-	b, mc := connMQTT("tcp://39.108.167.148:1883", "sub", "aaabbbc")
+	b, mc := connMQTT("tcp://127.0.0.1:1883", "sub", "aaabbbc")
 	if !b {
 		fmt.Println("sub connMQTT failed")
 		return
@@ -43,7 +43,7 @@ func subscribe() {
 // 发布消息
 func publish() {
 	// pub的用户名和密码
-	b, mc := connMQTT("tcp://39.108.167.148:1883", "pub", "aaabbb")
+	b, mc := connMQTT("tcp://127.0.0.1:1883", "pub", "aaabbb")
 	if !b {
 		fmt.Println("pub connMQTT failed")
 		return

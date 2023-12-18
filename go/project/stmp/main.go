@@ -76,7 +76,7 @@ func sendEmail(cfg *configInfo, e *emailContent) error {
 }
 
 var (
-	serveEmail     string
+	serveEmail     = "mail.snapmail.cc" // 匿名邮件根地址
 	serveEmailPort string
 	fromEmail      string
 	toEmail        string
@@ -85,26 +85,32 @@ var (
 )
 
 func main() {
-	flag.StringVar(&serveEmail, "s", "mail.snapmail.cc", "发送方")
+	//flag.StringVar(&serveEmail, "s", "mail.snapmail.cc", "发送方")
 	flag.StringVar(&serveEmailPort, "sp", "25", "发送方")
-	flag.StringVar(&fromEmail, "l", "alaugbicv@snapmail.cc", "发送方")
-	flag.StringVar(&toEmail, "r", "ablo804700@snapmail.cc", "接收方")
+	flag.StringVar(&fromEmail, "l", "test@snapmail.cc", "发送方")
+	flag.StringVar(&toEmail, "r", "test@snapmail.cc", "接收方")
 	flag.StringVar(&fileName, "f", "", "文件名")
-	flag.StringVar(&plain, "t", "test message", "文件名")
+	flag.StringVar(&plain, "t", "test message", "文本内容")
 	flag.Parse()
 
-	if _, err := os.Stat(fileName); err != nil {
-		log.Fatal(err)
-	} else {
-		f, err := os.Open(fileName)
-		if err != nil {
+	if fileName != "" {
+		if _, err := os.Stat(fileName); err != nil {
 			log.Fatal(err)
+		} else {
+			f, err := os.Open(fileName)
+			if err != nil {
+				log.Fatal(err)
+			}
+			b, err := io.ReadAll(f)
+			if err != nil {
+				log.Fatal(err)
+			}
+			plain = string(b)
 		}
-		b, err := io.ReadAll(f)
-		if err != nil {
-			log.Fatal(err)
-		}
-		plain = string(b)
+	}
+
+	if plain == "" {
+		log.Fatal("send content is empty")
 	}
 
 	// 收集配置信息

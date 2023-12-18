@@ -15,25 +15,26 @@ var (
 	targetPath string
 	splitFlag  bool
 	mergeFlag  bool
-	mergeName  string = "merge_file_success"
-)
+	mergeName  = "merge_file_success"
 
-var (
 	splitFileRoot   = "split_file_merge_"
 	oneReadDataLen  = 10240      // 10kb
 	maxSplitFileLen = 1000000000 // 1gb
+
+	tempDir = "./temp"
 )
 
 func main() {
-	flag.StringVar(&targetPath, "e", targetPath, "文件路径")
+	flag.StringVar(&targetPath, "t", targetPath, "文件路径")
 	flag.BoolVar(&splitFlag, "s", splitFlag, "切割文件")
-	flag.BoolVar(&mergeFlag, "m", mergeFlag, "合并文件")
+	flag.BoolVar(&mergeFlag, "m", mergeFlag, "合并文件夹内所有merge_file_success文件")
+	flag.IntVar(&maxSplitFileLen, "max", maxSplitFileLen, "单个文件最大值")
 	flag.StringVar(&mergeName, "name", mergeName, "合并文件,指定名称")
 	flag.Parse()
 
 	switch {
 	case targetPath == "":
-		log.Fatal("需要指定操作的目录")
+		log.Fatal("需要指定操作的目录或文件")
 	case splitFlag:
 		splitFile(targetPath)
 	case mergeFlag:
@@ -55,7 +56,7 @@ func splitFile(path string) {
 	for {
 		wPath := fmt.Sprintf(splitFileRoot+"%d", i)
 		fmt.Println(filepath.Abs(wPath))
-		wf, err := os.Create(wPath)
+		wf, err := os.Create(filepath.Join(tempDir, wPath))
 		if err != nil {
 			log.Fatal(err)
 		}

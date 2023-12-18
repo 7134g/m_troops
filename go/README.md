@@ -3,15 +3,16 @@
 
 
 ## 可编译工具
-- [tcp简易命令工具](project/tcpDialAndServe/main.go)
-- [mqtt_client](project/mqtt/client.go)
-- [etcd_client](project/rpc/etcd/client.go)
+- [tcp简易命令工具](project/tcpDialAndServe/README.md)
+- [暴力破解压缩包](project/recursion_decode/README.md)
+- [去除重复文件](project/duplication/README.md)
+- [匿名邮件](project/stmp/README.md)
+- [切割合并文件](project/split_merge_file/README.md)
 - [广播](project/broadcast/main.go)
-- [rpc_client](project/rpc/rpc_client/main.go)
-- [rpc_serve](project/rpc/rpc_client/main.go)
-- [暴力破解压缩包](project/recursion_decode/main.go)
-- [去除重复文件](project/duplication/main.go)
-
+- [etcd_client](project/rpc/README.md)
+- [rpc_client](project/rpc/README.md)
+- [rpc_serve](project/rpc/README.md)
+- [mqtt_client](project/mqtt/README.md)
 
 ## 代码块和库
 - [常用库](common.md)

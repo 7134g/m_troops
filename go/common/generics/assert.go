@@ -33,29 +33,3 @@ func GenID[D idType](id D) D {
 		return id
 	}
 }
-
-// 基础类型封装
-type key interface {
-	~int | ~int32 | ~int64 |
-		~uint | ~uint32 | ~uint64 |
-		~float64 |
-		~string
-}
-
-type record struct {
-	Value interface{} `json:"value,omitempty"` // 实时值
-}
-
-type field[K key] struct {
-	record
-	DefaultValue K `json:"default_value"` // 默认值
-}
-
-func (f *field[K]) Get() K {
-	value, ok := f.Value.(K)
-	if !ok {
-		return f.DefaultValue
-	}
-
-	return value
-}

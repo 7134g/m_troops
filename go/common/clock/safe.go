@@ -1,9 +1,21 @@
 package clock
 
-import "github.com/zeromicro/go-zero/core/rescue"
+import (
+	"log"
+)
+
+func Recover(cleanups ...func()) {
+	for _, cleanup := range cleanups {
+		cleanup()
+	}
+
+	if p := recover(); p != nil {
+		log.Println(p)
+	}
+}
 
 func RunSafe(fn func(), cleanups ...func()) {
-	defer rescue.Recover(cleanups...)
+	defer Recover(cleanups...)
 
 	fn()
 }

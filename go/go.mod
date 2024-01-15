@@ -8,11 +8,11 @@ require (
 	github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394
 	github.com/dgrijalva/jwt-go v3.2.1-0.20210802184156-9742bd7fca1c+incompatible
 	github.com/gin-gonic/gin v1.9.1
-	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang/mock v1.6.0
 	github.com/google/martian v2.1.0+incompatible
 	github.com/qiniu/api.v6 v6.0.9+incompatible
+	github.com/redis/go-redis/v9 v9.4.0
 	github.com/robertkrimen/otto v0.3.0
 	github.com/smartystreets/goconvey v1.7.2
 	github.com/stretchr/testify v1.8.4
@@ -48,6 +48,7 @@ require (
 	github.com/jtolds/gls v4.20.0+incompatible // indirect
 	github.com/klauspost/compress v1.17.4 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.6 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
@@ -72,12 +73,10 @@ require (
 	golang.org/x/sync v0.5.0 // indirect
 	google.golang.org/protobuf v1.31.1-0.20231221224323-bfcd6476a38e // indirect
 	gopkg.in/sourcemap.v1 v1.0.5 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
 require (
-	github.com/gomodule/redigo v1.8.9
 	github.com/gorilla/websocket v1.5.1
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible

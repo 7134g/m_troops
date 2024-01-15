@@ -1,30 +1,31 @@
 package model
 
 import (
-	"os"
-	"strconv"
-
-	"github.com/go-redis/redis"
+	"context"
+	"fmt"
+	"github.com/redis/go-redis/v9"
+	"time"
 )
 
-// RedisClient Redis缓存客户端单例
-var RedisClient *redis.Client
+type RedisConfig struct {
+	Host string
+	Type string
+	Pass string
+}
 
-// Redis 在中间件中初始化redis链接
-func Redis() {
-	db, _ := strconv.ParseUint(os.Getenv("REDIS_DB"), 10, 64)
+func InitRdsClient(addr, pwd string) *redis.Client {
 	client := redis.NewClient(&redis.Options{
-		Addr:       os.Getenv("REDIS_ADDR"),
-		Password:   os.Getenv("REDIS_PW"),
-		DB:         int(db),
-		MaxRetries: 1,
+		Addr:         addr,
+		Password:     pwd,
+		DB:           0,
+		ReadTimeout:  2 * time.Minute,
+		WriteTimeout: 1 * time.Minute,
+		PoolTimeout:  2 * time.Minute,
+		PoolSize:     1000,
 	})
-
-	_, err := client.Ping().Result()
-
+	_, err := client.Ping(context.Background()).Result()
 	if err != nil {
-		panic(err)
+		panic(fmt.Sprintf("redis init failed. err:%v", err.Error()))
 	}
-
-	RedisClient = client
+	return client
 }

@@ -1,4 +1,4 @@
-package safe_map
+package xmap
 
 import (
 	"sync"

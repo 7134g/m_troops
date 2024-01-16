@@ -1,4 +1,4 @@
-package safe_map
+package xmap
 
 import "fmt"
 
@@ -34,8 +34,8 @@ type Map struct {
 func New() *Map {
 	m := &Map{
 		body: make(map[interface{}]interface{}),
-		opt:  make(chan optData, 0),
-		rst:  make(chan rstData, 1),
+		opt:  make(chan optData),
+		rst:  make(chan rstData),
 	}
 	go m.run()
 	return m

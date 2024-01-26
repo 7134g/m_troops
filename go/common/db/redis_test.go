@@ -1,4 +1,4 @@
-package model
+package db
 
 import (
 	"context"
@@ -9,13 +9,17 @@ import (
 	"time"
 )
 
-func TestReleaseLock(t *testing.T) {
-	client := redis.NewClient(&redis.Options{
+var client *redis.Client
+
+func init() {
+	client = redis.NewClient(&redis.Options{
 		Addr:     "127.0.0.1:6379",
 		Password: "", // no password set
 		DB:       0,
 	})
+}
 
+func TestReleaseLock(t *testing.T) {
 	key := "mylock"                // 锁的键名
 	value := "myvalue"             // 锁的值（可以是唯一标识符）
 	expiration := 10 * time.Second // 锁的超时时间

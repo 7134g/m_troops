@@ -1,7 +1,8 @@
-package encoding
+package variant
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 )
 
@@ -61,4 +62,11 @@ func TestBinding_Stowage(t *testing.T) {
 
 	StructToStruct(dst, src)
 	fmt.Println(dst)
+}
+
+func TestName(t *testing.T) {
+	num := 2.342000000
+	str := strconv.FormatFloat(num, 'f', -1, 64)
+	fmt.Println(str)
+	fmt.Println(fmt.Sprintf("%f", num))
 }

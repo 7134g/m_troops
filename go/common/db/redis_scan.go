@@ -2,6 +2,37 @@ package db
 
 import "encoding/json"
 
+type rdsType struct {
+	val any
+}
+
+func (d *rdsType) MarshalText() (text []byte, err error) {
+	return json.Marshal(d.val)
+}
+
+func (d *rdsType) UnmarshalText(v []byte) error {
+	err := json.Unmarshal(v, &d.val)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (d *rdsType) MarshalBinary() (data []byte, err error) {
+	return json.Marshal(d.val)
+}
+
+func (d *rdsType) UnmarshalBinary(v []byte) error {
+	return json.Unmarshal(v, &d.val)
+}
+
+func (d *rdsType) Set(v any) {
+	d.val = v
+}
+func (d *rdsType) Get() any {
+	return d.val
+}
+
 type SliceString []string
 
 func NewSliceString(v []string) *SliceString {

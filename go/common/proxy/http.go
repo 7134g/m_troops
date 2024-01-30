@@ -2,6 +2,9 @@ package proxy
 
 import (
 	"bytes"
+	"errors"
+	"github.com/PuerkitoBio/goquery"
+	"io"
 	"net/http"
 )
 
@@ -31,4 +34,21 @@ func (w *writer) Write(bytes []byte) (int, error) {
 func (w *writer) WriteHeader(statusCode int) {
 	w.code = statusCode
 	w.write.WriteHeader(statusCode)
+}
+
+func ParseHtmlTitle(r io.Reader) (string, error) {
+	doc, err := goquery.NewDocumentFromReader(r)
+	if err != nil {
+		return "", err
+	}
+	node := doc.Find("title")
+	if node == nil {
+		return "", errors.New("cannot find title")
+	}
+	fn := node.First()
+	if fn == nil {
+		return "", errors.New("cannot find title")
+	}
+	title := fn.Text()
+	return title, nil
 }

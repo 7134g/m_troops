@@ -11,8 +11,8 @@ import (
 var privateKey *rsa.PrivateKey // 服务器私钥
 
 // LoadRsaPrivateKey 加载rsa私钥
-func LoadRsaPrivateKey(pemData string) {
-	block, _ := pem.Decode([]byte(pemData))
+func LoadRsaPrivateKey(pemData []byte) {
+	block, _ := pem.Decode(pemData)
 	pubKey, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
 	privateKey = pubKey
 }

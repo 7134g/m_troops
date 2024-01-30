@@ -2,98 +2,111 @@ package proxy
 
 import (
 	"bytes"
-	"crypto"
-	"crypto/tls"
+	"crypto/rsa"
 	"crypto/x509"
-	"encoding/base64"
 	"encoding/pem"
 	"github.com/google/martian/mitm"
+	"os"
 	"time"
 )
 
 var (
-	Domain              = "proxy"     //配置API域名
-	Organization        = "Authority" //MITM证书的组织名称
-	CAValidDay   uint32 = 3650        //MITM证书有效天数（单位天）
-	//Validity     uint32 = 1           //MITM证书有效的时间窗口（单位小时）
-
-	GlobalCert *Cert // 全局变量证书对象
+	domain        = "proxy"                   // 域名
+	organization  = "location"                // 组织者名称
+	validDuration = time.Hour * 24 * 365 * 20 // 证书过期时间
 )
 
-type Cert struct {
-	PrivateKey string `gorm:"column:private_key" json:"private_key"`
-	PublicKey  string `gorm:"column:public_key" json:"public_key"`
-}
+var (
+	ca      *x509.Certificate
+	private *rsa.PrivateKey
+	caName  = "mitm.crt"
+	priName = "pri.pem"
+)
 
-func CertReload() {
-	var err error
-	GlobalCert, err = newCert(Domain, Organization, time.Duration(CAValidDay)*time.Hour*24)
+func LoadCert() error {
+	c, err := loadRootCA()
 	if err != nil {
-		panic(err)
+		return err
 	}
+
+	ca = c
+
+	key, err := loadRootKey()
+	if err != nil {
+		return err
+	}
+
+	private = key
+
+	return nil
 }
 
-// GetMITMConfig 获取证书配置对象
-func GetMITMConfig() (*mitm.Config, error) {
-	ca, pri, err := genMITMConfig(GlobalCert)
+// 加载根证书
+func loadRootCA() (*x509.Certificate, error) {
+	mitmData, err := os.ReadFile(caName)
 	if err != nil {
 		return nil, err
 	}
-	mc, err := mitm.NewConfig(ca, pri)
+	block, _ := pem.Decode(mitmData)
+
+	return x509.ParseCertificate(block.Bytes)
+}
+
+// 加载根证书私钥
+func loadRootKey() (*rsa.PrivateKey, error) {
+	priData, err := os.ReadFile(priName)
 	if err != nil {
 		return nil, err
 	}
-	return mc, nil
+
+	block, _ := pem.Decode(priData)
+
+	return x509.ParsePKCS1PrivateKey(block.Bytes)
 }
 
-// ExportCrt 导出CA证书
-func ExportCrt() ([]byte, error) {
-	ca, _, err := genMITMConfig(GlobalCert)
+func GenMITM() error {
+	// 生成证书, 私钥
+	caData, priData, err := newCert(domain, organization, validDuration)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	content := pem.EncodeToMemory(&pem.Block{
-		Type:  "CERTIFICATE",
-		Bytes: ca.Raw,
-	})
 
-	return content, nil
+	// 写入新的私钥
+	keyF, err := os.Create(priName)
+	if err != nil {
+		return err
+	}
+	defer keyF.Close()
+	if _, err := keyF.Write(priData); err != nil {
+		return err
+	}
+
+	// 写入新的mitm
+	mitmF, err := os.Create(caName)
+	if err != nil {
+		return err
+	}
+	defer mitmF.Close()
+	if _, err := mitmF.Write(caData); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func genMITMConfig(_cert *Cert) (*x509.Certificate, crypto.PrivateKey, error) {
-	pub, err := base64.StdEncoding.DecodeString(_cert.PublicKey)
-	if err != nil {
-		return nil, nil, err
-	}
-	pri, err := base64.StdEncoding.DecodeString(_cert.PrivateKey)
-	if err != nil {
-		return nil, nil, err
-	}
-	tlsc, err := tls.X509KeyPair(pub, pri)
-	if err != nil {
-		return nil, nil, err
-	}
-	x509c, err := x509.ParseCertificate(tlsc.Certificate[0])
-	if err != nil {
-		return nil, nil, err
-	}
-	return x509c, tlsc.PrivateKey, nil
-}
-
-func newCert(domain string, organization string, validDuration time.Duration) (*Cert, error) {
+func newCert(domain string, organization string, validDuration time.Duration) ([]byte, []byte, error) {
 	pub, prv, err := mitm.NewAuthority(domain, organization, validDuration)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	prvKey := bytes.NewBuffer([]byte{})
-	if err = pem.Encode(prvKey, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(prv)}); err != nil {
-		return nil, err
+	prvData := bytes.NewBuffer([]byte{})
+	if err = pem.Encode(prvData, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(prv)}); err != nil {
+		return nil, nil, err
 	}
-	pubKey := bytes.NewBuffer([]byte{})
-	if err = pem.Encode(pubKey, &pem.Block{Type: "CERTIFICATE", Bytes: pub.Raw}); err != nil {
-		return nil, err
+	certData := bytes.NewBuffer([]byte{})
+	if err = pem.Encode(certData, &pem.Block{Type: "CERTIFICATE", Bytes: pub.Raw}); err != nil {
+		return nil, nil, err
 	}
 
-	return &Cert{PublicKey: base64.StdEncoding.EncodeToString(pubKey.Bytes()),
-		PrivateKey: base64.StdEncoding.EncodeToString(prvKey.Bytes())}, nil
+	return certData.Bytes(), prvData.Bytes(), nil
 }

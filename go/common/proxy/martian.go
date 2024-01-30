@@ -1,13 +1,14 @@
-// 使用官方包 github.com/google/martian 实现拦截
 package proxy
 
 import (
 	"bytes"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"github.com/google/martian"
 	"github.com/google/martian/auth"
 	"github.com/google/martian/log"
+	"github.com/google/martian/mitm"
 	"github.com/google/martian/priority"
 	"github.com/google/martian/proxyauth"
 	"net"
@@ -16,78 +17,134 @@ import (
 )
 
 var (
-	Proxy       *martian.Proxy
-	ProxyServer string
-	UserName    string
-	PassWord    string
+	MonitorAddress = "127.0.0.1:10888" // 监听地址
 )
 
-func Martian() error {
-	Proxy = martian.NewProxy()
-	group := priority.NewGroup()
+var (
+	httpMartian *martian.Proxy // 拦截器全局对象
+	certFlag    bool           // 开启自签证书验证
+)
 
-	if UserName != "" {
-		a := proxyauth.NewModifier()
-		group.AddRequestModifier(a, 2)
-		group.AddResponseModifier(a, 2)
-	}
+var (
+	serverProxyUrlParse *url.URL // 解析代理
 
-	s := &Skip{}
-	group.AddRequestModifier(s, 1)
-	group.AddResponseModifier(s, 1)
+	serverProxyFlag     bool   // 启用代理
+	serverProxy         string // 服务代理地址
+	serverProxyUsername string // 用户名
+	serverProxyPassword string // 密码
+)
 
-	Proxy.SetRequestModifier(group)
-	Proxy.SetResponseModifier(group)
-	// 使用代理发请求时候装载证书
-	if ProxyServer != "" {
-		fmt.Println("开启代理：", ProxyServer)
-		CertReload()
-		mc, err := GetMITMConfig()
-		if err != nil {
-			return err
-		}
-		Proxy.SetMITM(mc)
-	}
-
+func init() {
 	log.SetLevel(log.Silent)
-	listener, err := net.Listen("tcp", ":1080")
-	if err != nil {
-		return err
-	}
-
-	err = Proxy.Serve(listener)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
-type Skip struct {
+func OpenCert() {
+	certFlag = true
+	_ = LoadCert()
 }
 
-func (r *Skip) ModifyRequest(req *http.Request) error {
-	if ProxyServer != "" {
-		u, err := url.Parse(ProxyServer)
+func SetServeProxyAddress(address, username, password string) {
+	serverProxyFlag = true
+	serverProxy = address
+	serverProxyUsername = username
+	serverProxyPassword = password
+}
+
+func Martian() error {
+	httpMartian = martian.NewProxy()
+	if certFlag {
+		mc, err := mitm.NewConfig(ca, private)
 		if err != nil {
 			return err
 		}
-
-		Proxy.SetDownstreamProxy(u)
+		httpMartian.SetMITM(mc)
 	}
 
-	ctx := martian.NewContext(req)
-	authCTX := auth.FromContext(ctx)
-	if authCTX.ID() != fmt.Sprintf("%s:%s", UserName, PassWord) {
-		authCTX.SetError(errors.New("auth error"))
-		ctx.SkipRoundTrip()
+	if serverProxyFlag {
+		u, err := url.Parse(serverProxy)
+		if err != nil {
+			return err
+		}
+		serverProxyUrlParse = u
+	}
+
+	group := priority.NewGroup()
+	xs := newSkip()
+	group.AddRequestModifier(xs, 10)
+	group.AddResponseModifier(xs, 10)
+	xa := newAuth(proxyauth.NewModifier())
+	group.AddRequestModifier(xa, 12)
+	group.AddResponseModifier(xa, 12)
+	httpMartian.SetRequestModifier(group)
+	httpMartian.SetResponseModifier(group)
+
+	listener, err := net.Listen("tcp", MonitorAddress)
+	if err != nil {
+		return err
+	}
+
+	err = httpMartian.Serve(listener)
+	if err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func (r *Skip) ModifyResponse(res *http.Response) error {
+type skip struct {
+}
+
+func newSkip() *skip {
+	return &skip{}
+}
+
+func (r *skip) ModifyRequest(req *http.Request) error {
+	// todo 编写想要处理的请求
+	fmt.Println(req.Method, req.URL.String())
+
 	return nil
+}
+
+func (r *skip) ModifyResponse(res *http.Response) error {
+	// todo 编写想要处理的请求
+	return nil
+}
+
+type xauth struct {
+	pAuth *proxyauth.Modifier
+}
+
+func newAuth(pAuth *proxyauth.Modifier) *xauth {
+	return &xauth{pAuth: pAuth}
+}
+
+func (r *xauth) ModifyRequest(req *http.Request) error {
+	if serverProxy == "" {
+		return nil
+	}
+
+	httpMartian.SetDownstreamProxy(serverProxyUrlParse)
+
+	if serverProxyUsername != "" {
+		un := base64.StdEncoding.EncodeToString([]byte(serverProxyUsername))
+		pw := base64.StdEncoding.EncodeToString([]byte(serverProxyPassword))
+		//req.Header.Set("Proxy-Authorization", fmt.Sprintf("Basic %s:%s", un, pw))
+		ctx := martian.NewContext(req)
+		authCTX := auth.FromContext(ctx)
+		if authCTX.ID() != fmt.Sprintf("%s:%s", un, pw) {
+			authCTX.SetError(errors.New("auth error"))
+			ctx.SkipRoundTrip()
+		}
+	}
+
+	return nil
+}
+
+func (r *xauth) ModifyResponse(res *http.Response) error {
+	if serverProxy == "" {
+		return nil
+	}
+	return r.pAuth.ModifyResponse(res)
 }
 
 // ExtractRequestToString 提取请求包

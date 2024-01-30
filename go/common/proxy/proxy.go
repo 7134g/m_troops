@@ -12,7 +12,8 @@ import (
 
 func Serve() error {
 	// tcp 连接，监听 8080 端口
-	l, err := net.Listen("tcp", ":1080")
+	address := "127.0.0.1:8080"
+	l, err := net.Listen("tcp", address)
 	if err != nil {
 		return err
 	}
@@ -22,7 +23,7 @@ func Serve() error {
 		if err != nil {
 			return err
 		}
-		go proxyHandle(client)
+		go handle(client)
 	}
 
 }

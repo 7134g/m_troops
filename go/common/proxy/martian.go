@@ -1,7 +1,6 @@
 package proxy
 
 import (
-	"bytes"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -145,16 +144,4 @@ func (r *xauth) ModifyResponse(res *http.Response) error {
 		return nil
 	}
 	return r.pAuth.ModifyResponse(res)
-}
-
-// ExtractRequestToString 提取请求包
-func ExtractRequestToString(res *http.Request) string {
-	buf := bytes.NewBuffer([]byte{})
-	defer buf.Reset()
-	err := res.Write(buf)
-	if err != nil {
-		return ""
-	}
-
-	return buf.String()
 }

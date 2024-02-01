@@ -6,7 +6,7 @@ import (
 )
 
 func TestUint(t *testing.T) {
-	x := CmpMap[uint]{
+	x := CmpMap[string, uint]{
 		lock: sync.RWMutex{},
 		body: map[string]uint{},
 	}

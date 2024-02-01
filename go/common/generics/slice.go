@@ -6,23 +6,33 @@ type sliceType interface {
 	[]byte | []string | []int
 }
 
-type sliceMap[D sliceType] struct {
+type sliceMap[K dataType, D sliceType] struct {
 	lock sync.RWMutex
 
-	body map[string]D
+	body map[K]D
 }
 
-func (m *sliceMap[D]) Set(key string, value D) {
+func (m *sliceMap[K, D]) Set(key K, value D) {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 
 	m.body[key] = value
 }
 
-func (m *sliceMap[D]) Get(key string) (D, bool) {
+func (m *sliceMap[K, D]) Get(key K) (D, bool) {
 	m.lock.RLock()
 	defer m.lock.RUnlock()
 
 	value, exist := m.body[key]
 	return value, exist
+}
+
+func (m *sliceMap[K, D]) Each(f func(key K, value D)) {
+	m.lock.RLock()
+	defer m.lock.RUnlock()
+
+	for key, value := range m.body {
+		f(key, value)
+	}
+
 }

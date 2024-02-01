@@ -6,7 +6,7 @@ import (
 )
 
 func TestSliceUint(t *testing.T) {
-	x := sliceMap[[]byte]{
+	x := sliceMap[string, []byte]{
 		lock: sync.RWMutex{},
 		body: map[string][]byte{},
 	}

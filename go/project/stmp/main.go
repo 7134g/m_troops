@@ -77,7 +77,7 @@ func sendEmail(cfg *configInfo, e *emailContent) error {
 
 var (
 	serveEmail     = "mail.snapmail.cc" // 匿名邮件根地址
-	serveEmailPort string
+	serveEmailPort = "25"
 	fromEmail      string
 	toEmail        string
 	fileName       string
@@ -85,14 +85,19 @@ var (
 )
 
 func main() {
-	//flag.StringVar(&serveEmail, "s", "mail.snapmail.cc", "发送方")
-	flag.StringVar(&serveEmailPort, "sp", "25", "发送方")
-	flag.StringVar(&fromEmail, "l", "test@snapmail.cc", "发送方")
-	flag.StringVar(&toEmail, "r", "test@snapmail.cc", "接收方")
-	flag.StringVar(&fileName, "f", "", "文件名")
-	flag.StringVar(&plain, "t", "test message", "文本内容")
+	//flag.StringVar(&serveEmail, "s", "mail.snapmail.cc", "邮箱服务地址")
+	//flag.StringVar(&serveEmailPort, "sp", "25", "邮箱服务地址端口")
+	flag.StringVar(&fromEmail, "l", "send@snapmail.cc", "sender")
+	flag.StringVar(&toEmail, "r", "receive@snapmail.cc", "receive")
+	flag.StringVar(&fileName, "fn", "", "file name(Send the contents of the file)")
+	flag.StringVar(&plain, "t", "", "content(Send text directly)")
 	flag.Parse()
 
+	fmt.Printf(`
+sender:  %s
+receive: %s
+
+`, fromEmail, toEmail)
 	if fileName != "" {
 		if _, err := os.Stat(fileName); err != nil {
 			log.Fatal(err)
@@ -140,6 +145,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	} else {
-		fmt.Println("发送成功")
+		fmt.Println("send ok")
 	}
 }

@@ -9,9 +9,8 @@
 - [匿名邮件](project/stmp/README.md)
 - [切割合并文件](project/split_merge_file/README.md)
 - [广播](project/broadcast/main.go)
+- [rpc简易命令工具](project/rpc/README.md)
 - [etcd_client](project/rpc/README.md)
-- [rpc_client](project/rpc/README.md)
-- [rpc_serve](project/rpc/README.md)
 - [mqtt_client](project/mqtt/README.md)
 
 ## 代码块和库

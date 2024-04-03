@@ -1,3 +1,30 @@
+## go-zero 中不错的工具包
+- `core/mr/mapreduce.go` 并发读取rpc服务数据
+```golang
+package main
+
+import (
+	"errors"
+	"fmt"
+	"github.com/zeromicro/go-zero/core/mr"
+	"time"
+)
+
+func main() {
+
+	err := mr.Finish(func() error {
+		fmt.Println("task 1")
+		time.Sleep(time.Second)
+		return errors.New("error 1")
+	}, func() error {
+		fmt.Println("task2")
+		return nil
+	})
+
+	fmt.Println(err)
+}
+```
+
 ## example-packet
  - [README.md](go-zero-packet/README.md)
 

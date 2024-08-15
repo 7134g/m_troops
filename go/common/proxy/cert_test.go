@@ -1,8 +1,8 @@
 package proxy
 
 import (
+	"github.com/7134g/m_troops/go/common/files"
 	"github.com/stretchr/testify/assert"
-	"m_troops/go/common/files"
 	"os"
 	"testing"
 	"time"

@@ -1,6 +1,6 @@
-module m_troops/go
+module github.com/7134g/m_troops/go
 
-go 1.21
+go 1.18
 
 require (
 	bou.ke/monkey v1.0.2

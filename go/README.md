@@ -29,7 +29,7 @@
       - [redis连接](common/db/redis.go)
       - [redis分布式锁](common/db/redis_lock.go)
       - [mongo](common/db/mongo.go)
-    - [自旋锁](common/lock/self_lock.go)
+    - [自旋锁](common/cas/self_lock.go)
     - [编解码](common/encoding/coding.go)
     - [进制变化](common/encoding/convet.go)
     - [结构体转map](common/encoding/StructAssignment.go)

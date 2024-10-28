@@ -45,7 +45,7 @@ func TestStructToMap(t *testing.T) {
 		Email string `json:"email"`
 	}{"John Doe", 30, "john@example.com"}
 
-	t.Log(StructToMap(s))
+	t.Log(StructToMapWithJson(s))
 }
 
 func TestBinding_Stowage(t *testing.T) {

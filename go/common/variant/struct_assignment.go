@@ -2,40 +2,50 @@ package variant
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 )
 
-func MapToStruct(st interface{}, setting map[string]interface{}) error {
+func MapToStruct(st interface{}, data map[string]interface{}) error {
 	isPtr := reflect.TypeOf(st).Kind() == reflect.Ptr
 	isStruct := reflect.TypeOf(st).Elem().Kind() == reflect.Struct
 	if !isPtr || !isStruct {
 		return errors.New("st 必须是指针变量")
 	}
 
-	if setting == nil {
-		return errors.New("setting is not nil")
+	if data == nil {
+		return errors.New("data is not nil")
 	}
 
-	var (
-		field reflect.StructField
-		ok    bool
-	)
+	vstr := reflect.ValueOf(st)
+	if vstr.IsNil() {
+		return errors.New("st 不能是空指针")
+	}
+	vstr = vstr.Elem()
 
-	for k, v := range setting {
-		if field, ok = reflect.TypeOf(st).Elem().FieldByName(k); !ok {
+	for k, v := range data {
+		field, ok := vstr.Type().FieldByName(k)
+		if !ok {
 			continue
 		}
-		if field.Type == reflect.TypeOf(v) {
-			vstr := reflect.ValueOf(st)
-			vstr = vstr.Elem()
-			vstr.FieldByName(k).Set(reflect.ValueOf(v))
+
+		tv := reflect.ValueOf(v)
+		if !tv.Type().ConvertibleTo(field.Type) {
+			return fmt.Errorf("无法将 %s 类型的值转换为 %s 类型", tv.Type(), field.Type)
 		}
+
+		tv = tv.Convert(field.Type)
+		if !vstr.FieldByName(k).CanSet() {
+			return fmt.Errorf("字段 %s 无法设置", k)
+		}
+
+		vstr.FieldByName(k).Set(tv)
 	}
 
 	return nil
 }
 
-func StructToMap(obj interface{}) map[string]interface{} {
+func StructToMapWithJson(obj interface{}) map[string]interface{} {
 	objValue := reflect.ValueOf(obj)
 	if objValue.Kind() == reflect.Ptr {
 		objValue = objValue.Elem()

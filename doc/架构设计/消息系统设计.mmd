@@ -1,0 +1,77 @@
+flowchart TD
+    %% ==================== 方案一：无单独的消息微服务 ====================
+    subgraph S1["方案一：无单独的消息微服务"]
+        direction TB
+
+        %% 生产者层
+        subgraph PROD1["生产者"]
+            G1["gift服"]
+            G2["game服"]
+            G3["user服"]
+        end
+
+        %% 各自 topic
+        GT[(gift_topic)]
+        GAT[(game_topic)]
+        UT[(user_topic)]
+
+        G1 -- "生产" --> GT
+        G2 -- "生产" --> GAT
+        G3 -- "生产" --> UT
+
+        %% 消费组
+        subgraph CG1["消费组"]
+            GC_G["gift服消费组<br/>注册 gift_topic"]
+            GC_U["user服消费组<br/>注册 user_topic + gift_topic + game_topic"]
+        end
+
+        GT -- "消费" --> GC_G
+        GT -- "消费" --> GC_U
+        GAT -- "消费" --> GC_U
+        UT -- "消费" --> GC_U
+
+        %% 业务逻辑
+        GC_G -- "按消息id<br/>绑定解析函数" --> DONE_G["完成gift服业务逻辑"]
+        GC_U -- "按消息id<br/>绑定解析函数" --> DONE_U["完成user服业务逻辑"]
+
+        %% 弊端/好处 注释
+        N11["弊端①：user服消费到大量无效消息<br/>部分消息仅gift服自身需要<br/>user服需解析后才能判断是否处理"] -.-> GC_U
+        N12["弊端②：并发互斥锁冲突时<br/>需修改消息标记为仅当前服可消费<br/>写回自身topic等待再次消费"] -.-> GC_U
+        N13["好处：收敛所有业务逻辑<br/>不用把一个功能拆到多个服务"] -.-> DONE_U
+    end
+
+    %% ==================== 方案二：消息处理微服务 ====================
+    subgraph S2["方案二：消息处理微服务"]
+        direction TB
+
+        %% 生产者
+        subgraph PROD2["生产者"]
+            M1["gift服"]
+            M2["game服"]
+            M3["user服"]
+        end
+
+        %% 唯一topic
+        MT[(唯一topic)]
+
+        M1 -- "生产" --> MT
+        M2 -- "生产" --> MT
+        M3 -- "生产" --> MT
+
+        %% mission服消费
+        MS["mission服<br/>（消息处理微服务）"]
+
+        MT -- "消费" --> MS
+        MS -- "按消息id<br/>绑定解析函数" --> DONE2["完成业务逻辑"]
+
+        %% 弊端/好处 注释
+        N21["弊端①：高内聚+回环调用rpc<br/>业务调用user服产生消息<br/>却需由mission服来消费"] -.-> MS
+        N22["→ mission没有该功能：消息丢失"] -.-> MS
+        N23["→ mission有该功能：<br/>在解析函数中完成<br/>或rpc回环调用user服"] -.-> MS
+        N24["好处①：避免消费无效消息<br/>提升消费速度只需增加mission服数量"] -.-> MT
+        N25["好处②：并发锁冲突时<br/>可直接写回唯一topic重新排队消费"] -.-> MT
+    end
+
+    %% 注释样式
+    classDef note fill:#fff8e1,stroke:#f9a825,stroke-width:1px,stroke-dasharray:4 3;
+    class N11,N12,N13,N21,N22,N23,N24,N25 note;

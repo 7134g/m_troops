@@ -1,0 +1,78 @@
+graph TB
+    subgraph Overview[排行榜设计方案总览]
+        direction LR
+        A[方案1: Redis ZSet<br/>单次查询] --> B[方案2: Redis ZSet<br/>两次查询]
+        A --> C[方案3: 内存方案<br/>多机一致]
+    end
+
+    subgraph Scheme1[方案1: Redis ZSet 单次查询]
+        direction TB
+        S1_1[写入: 构造组合分数] --> S1_2[ZADD key userID score]
+        S1_2 --> S1_3[读取: ZREVRANGE 获取排名]
+        S1_3 --> S1_4[解析分数获取各维度值]
+        
+        S1_1 -.-> S1_N1[备注: score = 分数组合 * 10^9 + 9位时间戳]
+        S1_N1 -.-> S1_N2[分数组合 = D + C*1000 + B*1000000 + A*1000000000]
+        S1_N2 -.-> S1_N3[同分同时间戳: 按userID ASCII排序]
+        S1_N3 -.-> S1_N4[优点: 网络IO少<br/>缺点: 计算量大]
+    end
+
+    subgraph Scheme2[方案2: Redis ZSet 两次查询]
+        direction TB
+        S2_1[写入: 分数ZSet + 时间戳ZSet] --> S2_2[ZADD score_zset userID score]
+        S2_2 --> S2_3[ZADD time_zset userID timestamp]
+        S2_3 --> S2_4[读取: 先查分数ZSet]
+        S2_4 --> S2_5{存在相同分数?}
+        S2_5 -->|是| S2_6[查时间戳ZSet<br/>按时间排序]
+        S2_5 -->|否| S2_7[直接返回排名]
+        
+        S2_2 -.-> S2_N1[备注: 分数和时间戳分两个ZSet存储]
+        S2_N1 -.-> S2_N2[优点: 计算量小<br/>缺点: 网络IO多]
+        S2_N2 -.-> S2_N3[潜在问题: 同时写入同field两条数据时<br/>时间戳可能为旧值]
+    end
+
+    subgraph Scheme3[方案3: 内存方案 多机一致]
+        direction TB
+        
+        subgraph S3_Init[初始化阶段]
+            I1[B服务启动] --> I2[读取MySQL快照数据]
+            I2 --> I3[读取当前Kafka Offset]
+            I3 --> I4[从Offset+1开始消费]
+            I4 --> I5[构建内存排行榜 Map]
+        end
+
+        subgraph S3_Update[更新阶段]
+            U1[接口请求到达] --> U2[写入Kafka消息]
+            U2 --> U3[每台机器独立消费组消费]
+            U3 --> U4[更新内存排行榜 Map]
+            U4 --> U5[异步协程写入MySQL]
+            
+            U4 -.-> U4_N1[备注: 内存数据结构为带锁的Map]
+            U4_N1 -.-> U4_N2[所有机器消费同一Topic<br/>保证数据一致]
+        end
+
+        subgraph S3_Query[查询阶段]
+            Q1[查询请求到达] --> Q2[直接读取内存Map]
+            Q2 --> Q3[返回排名结果]
+            Q2 -.-> Q2_N1[备注: O(1)时间复杂度<br/>毫秒级响应]
+        end
+
+        S3_Init --> S3_Update
+        S3_Update --> S3_Query
+        
+        S3_Query -.-> S3_N1[备注: 最强一致性<br/>双写MySQL+原子性快照]
+        S3_N1 -.-> S3_N2[优点: 极致性能<br/>缺点: 实现复杂度高]
+    end
+
+    subgraph Comparison[方案对比]
+        C1[方案1] --> C1_D[网络IO: 少<br/>计算量: 高<br/>一致性: 中]
+        C2[方案2] --> C2_D[网络IO: 多<br/>计算量: 低<br/>一致性: 低]
+        C3[方案3] --> C3_D[网络IO: 无<br/>计算量: 低<br/>一致性: 强]
+    end
+
+    style Scheme1 fill:#e1f5fe
+    style Scheme2 fill:#f3e5f5
+    style Scheme3 fill:#e8f5e9
+    style Comparison fill:#fff3e0
+    classDef note fill:#fff9c4,stroke:#f9a825,stroke-dasharray: 5 5
+    class S1_N1,S1_N2,S1_N3,S1_N4,S2_N1,S2_N2,S2_N3,S3_N1,S3_N2,U4_N1,U4_N2,Q2_N1 note

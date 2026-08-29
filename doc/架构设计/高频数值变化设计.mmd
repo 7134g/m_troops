@@ -1,59 +1,90 @@
-flowchart TD
-    %% ==================== 前提背景 ====================
-    N0["背景：高频数值变更若每次直接写入MySQL<br/>会导致数据量过大、性能下降、锁冲突严重<br/>方案：每timeArea秒内数据聚合写入Redis<br/>延时任务触发后批量写入MySQL"]
-
-    %% ==================== 步骤1：数据写入Redis ====================
-    subgraph S1["步骤① 数据写入Redis"]
-        A([用户触发数值变更<br/>例：送礼增加魅力值]) --> B["调用聚合函数<br/>Agg(aggId, key, timeArea, score)"]
-        B --> C["RPUSH agg:value:aggId:key score<br/>例：RPUSH agg:value:1:10001 100"]
+graph TB
+    subgraph Overview[高频数值变化设计 - 整体流程]
+        direction LR
+        A[业务触发数值变更] --> B[写入Redis队列]
+        B --> C[构建延时任务]
+        C --> D[延时任务触发]
+        D --> E[数据聚合写入MySQL]
     end
 
-    C --> D{timeArea 判断}
-
-    %% ==================== 步骤2：构建延时任务 ====================
-    subgraph S2["步骤② 构建延时任务"]
-        D -- "timeArea = 1<br/>当前秒即时间块" --> E1["时间块时间戳 = 当前时间戳"]
-        D -- "timeArea > 1<br/>以整点为单位按timeArea分割" --> E2["计算当前时间所在时间块<br/>获取时间块起始时间戳<br/>例：timeArea=5, 当前1780000003<br/>→ 时间块起始 1780000000"]
-        E1 --> F["构建延时任务Key<br/>agg:delay:aggId:key:时间块时间戳<br/>例：agg:delay:1:10001:1780000000"]
-        E2 --> F
-        F --> G["设置延时任务执行时间<br/>= 当前时间戳 + timeArea 秒<br/>例：1780000001"]
+    subgraph Phase1[阶段一: 数据写入]
+        direction TB
+        P1_1[用户点击送礼] --> P1_2[触发收礼人经验值变更]
+        P1_2 --> P1_3[执行 RPUSH agg:value:业务id:key 变更数值]
+        P1_3 --> P1_4[RPUSH执行成功]
     end
 
-    %% ==================== 步骤3：延时任务触发 ====================
-    subgraph S3["步骤③ 延时任务触发"]
-        G --> H["延时任务到达执行时间<br/>携带数据 Task{AggKey, Timestamp}"]
-        H --> I["newKey = AggKey + ':snapshot' + Timestamp<br/>例：agg:value:1:10001:snapshot:1780000000"]
-        I --> J{"RENAME AggKey → newKey"}
-        J -- "失败（key不存在）" --> J1["无待聚合数据，直接结束"]
-        J -- "成功" --> K["LLEN newKey<br/>获取列表长度"]
-        K --> L{列表长度判断}
-        L -- "≤ 1000" --> M["LPOP newKey 1000<br/>一次性取出全部数据"]
-        L -- "> 1000" --> N["pipeline 循环执行<br/>LPOP newKey 1000<br/>直至全部数据获取完毕"]
+    subgraph Phase2[阶段二: 延时任务构建]
+        direction TB
+        P2_1[构建延时队列任务] --> P2_2{判断 timeArea}
+        P2_2 -->|timeArea等于1| P2_3[无需处理直接使用当前时间戳]
+        P2_2 -->|timeArea大于1| P2_4[按整点分割时间块]
+        P2_4 --> P2_5[计算当前时间块对应的时间戳]
+        P2_3 --> P2_6
+        P2_5 --> P2_6[构建延时任务Key]
+        P2_6 --> P2_7[Key: agg:delay:业务id:key:时间戳]
+        P2_7 --> P2_8[执行时间: 当前时间戳加timeArea秒]
+        P2_8 --> P2_9[延时任务携带数据 Task]
     end
 
-    %% ==================== 步骤4：聚合写入MySQL ====================
-    subgraph S4["步骤④ 聚合写入MySQL"]
-        M --> O["对获取到的所有数值<br/>进行聚合计算"]
-        N --> O
-        O --> P["聚合结果写入MySQL"]
+    subgraph Phase3[阶段三: 延时任务触发与数据拉取]
+        direction TB
+        P3_1[延时任务到达] --> P3_2[构造 newKey]
+        P3_2 --> P3_3[newKey = AggKey + :snapshot + Timestamp]
+        P3_3 --> P3_4[执行 RENAME AggKey newKey]
+        P3_4 --> P3_5{RENAME是否成功}
+        P3_5 -->|失败| P3_6[无数据需要聚合流程结束]
+        P3_5 -->|成功| P3_7[执行 LLEN newKey]
+        P3_7 --> P3_8{队列长度判断}
+        P3_8 -->|小于等于1000| P3_9[执行 LPOP newKey 1000]
+        P3_8 -->|大于1000| P3_10[使用Pipeline循环处理]
+        P3_10 --> P3_11[每次LPOP 1000条]
+        P3_11 --> P3_12{是否全部获取完毕}
+        P3_12 -->|否| P3_11
+        P3_12 -->|是| P3_13[获取全部数据完成]
+        P3_9 --> P3_13
     end
 
-    %% ==================== 步骤5：清理 ====================
-    subgraph S5["步骤⑤ 清理临时数据"]
-        P --> Q["DEL newKey<br/>删除临时快照Key"]
-        Q --> R([流程结束])
+    subgraph Phase4[阶段四: 数据聚合与清理]
+        direction TB
+        P4_1[聚合结果写入MySQL] --> P4_2[执行 DEL newKey]
+        P4_2 --> P4_3[删除临时key释放内存]
+        P4_3 --> P4_4[流程结束]
     end
 
-    J1 --> R
+    subgraph Notes[关键说明]
+        direction LR
+        N1[RPUSH写入队列] --> N1_D[将变更数值追加到Redis列表尾部]
+        N2[延时任务] --> N2_D[避免频繁写入MySQL解决锁冲突]
+        N3[时间块分割] --> N3_D[timeArea大于1时按整点切分]
+        N4[RENAME操作] --> N4_D[原子性重命名隔离当前批次数据]
+        N5[Pipeline批量处理] --> N5_D[减少网络IO开销提高效率]
+        N6[DEL清理] --> N6_D[处理完成后删除临时key]
+    end
 
-    %% ==================== 备注说明 ====================
-    N3["备注①：RPUSH 是原子操作<br/>保证并发场景下数据不丢失"] -.-> C
-    N4["备注②：RENAME 是原子操作<br/>将聚合时间段内的数据<br/>一次性转移到快照Key<br/>避免新数据混入当前批次"] -.-> J
-    N5["备注③：pipeline 批量 LPOP<br/>避免单次操作数据量过大<br/>阻塞Redis"] -.-> N
-    N6["备注④：延时任务使用<br/>Redis ZSET 或专业延时队列实现<br/>如：有赞的 DelayQueue"] -.-> G
+    P1_4 --> P2_1
+    P2_9 --> P3_1
+    P3_13 --> P4_1
 
-    %% 注释样式
-    classDef note fill:#fff8e1,stroke:#f9a825,stroke-width:1px,stroke-dasharray:4 3;
-    classDef bg fill:#e8f5e9,stroke:#4caf50,stroke-width:1px;
-    class N0,N3,N4,N5,N6 note;
-    class S1,S2,S3,S4,S5 bg;
+    Phase1 -.-> Phase1_Note[阶段说明: 业务触发时实时写入Redis]
+    Phase2 -.-> Phase2_Note[阶段说明: 根据timeArea计算延时时间]
+    Phase3 -.-> Phase3_Note[阶段说明: 延时到后RENAME隔离数据]
+    Phase4 -.-> Phase4_Note[阶段说明: 聚合后持久化MySQL清理临时数据]
+
+    P1_3 -.-> N1
+    P2_1 -.-> N2
+    P2_4 -.-> N3
+    P3_4 -.-> N4
+    P3_10 -.-> N5
+    P4_2 -.-> N6
+
+    style Overview fill:#e3f2fd
+    style Phase1 fill:#e8f5e9
+    style Phase2 fill:#fff3e0
+    style Phase3 fill:#f3e5f5
+    style Phase4 fill:#e1f5fe
+    style Notes fill:#fafafa
+
+    classDef note fill:#fff9c4,stroke:#f9a825,stroke-dasharray: 5 5
+    class Phase1_Note,Phase2_Note,Phase3_Note,Phase4_Note note
+    class N1,N1_D,N2,N2_D,N3,N3_D,N4,N4_D,N5,N5_D,N6,N6_D note

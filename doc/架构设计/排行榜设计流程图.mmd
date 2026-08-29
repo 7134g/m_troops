@@ -10,11 +10,6 @@ graph TB
         S1_1[写入: 构造组合分数] --> S1_2[ZADD key userID score]
         S1_2 --> S1_3[读取: ZREVRANGE 获取排名]
         S1_3 --> S1_4[解析分数获取各维度值]
-        
-        S1_1 -.-> S1_N1[备注: score = 分数组合 * 10^9 + 9位时间戳]
-        S1_N1 -.-> S1_N2[分数组合 = D + C*1000 + B*1000000 + A*1000000000]
-        S1_N2 -.-> S1_N3[同分同时间戳: 按userID ASCII排序]
-        S1_N3 -.-> S1_N4[优点: 网络IO少<br/>缺点: 计算量大]
     end
 
     subgraph Scheme2[方案2: Redis ZSet 两次查询]
@@ -25,10 +20,6 @@ graph TB
         S2_4 --> S2_5{存在相同分数?}
         S2_5 -->|是| S2_6[查时间戳ZSet<br/>按时间排序]
         S2_5 -->|否| S2_7[直接返回排名]
-        
-        S2_2 -.-> S2_N1[备注: 分数和时间戳分两个ZSet存储]
-        S2_N1 -.-> S2_N2[优点: 计算量小<br/>缺点: 网络IO多]
-        S2_N2 -.-> S2_N3[潜在问题: 同时写入同field两条数据时<br/>时间戳可能为旧值]
     end
 
     subgraph Scheme3[方案3: 内存方案 多机一致]
@@ -46,22 +37,15 @@ graph TB
             U2 --> U3[每台机器独立消费组消费]
             U3 --> U4[更新内存排行榜 Map]
             U4 --> U5[异步协程写入MySQL]
-            
-            U4 -.-> U4_N1[备注: 内存数据结构为带锁的Map]
-            U4_N1 -.-> U4_N2[所有机器消费同一Topic<br/>保证数据一致]
         end
 
         subgraph S3_Query[查询阶段]
             Q1[查询请求到达] --> Q2[直接读取内存Map]
             Q2 --> Q3[返回排名结果]
-            Q2 -.-> Q2_N1[备注: O(1)时间复杂度<br/>毫秒级响应]
         end
 
         S3_Init --> S3_Update
         S3_Update --> S3_Query
-        
-        S3_Query -.-> S3_N1[备注: 最强一致性<br/>双写MySQL+原子性快照]
-        S3_N1 -.-> S3_N2[优点: 极致性能<br/>缺点: 实现复杂度高]
     end
 
     subgraph Comparison[方案对比]
@@ -70,9 +54,28 @@ graph TB
         C3[方案3] --> C3_D[网络IO: 无<br/>计算量: 低<br/>一致性: 强]
     end
 
+    %% ===== 方案1 备注说明 =====
+    S1_1 -.-> S1_N1[分数构造公式]
+    S1_N1 -.-> S1_N2[score = 分数组合 * 10^9 + 9位时间戳]
+    S1_N2 -.-> S1_N3[分数组合 = D + C*1000 + B*1000000 + A*1000000000]
+    S1_N3 -.-> S1_N4[同分同时间戳: 按userID ASCII排序]
+    S1_N4 -.-> S1_N5[优点: 网络IO少 , 缺点: 计算量大]
+
+    %% ===== 方案2 备注说明 =====
+    S2_2 -.-> S2_N1[分数和时间戳分两个ZSet存储]
+    S2_N1 -.-> S2_N2[优点: 计算量小 , 缺点: 网络IO多]
+    S2_N2 -.-> S2_N3[潜在问题: 同时写入同field两条数据时<br/>时间戳可能为旧值]
+
+    %% ===== 方案3 备注说明 =====
+    U4 -.-> U4_N1[内存数据结构为带锁的Map]
+    U4_N1 -.-> U4_N2[所有机器消费同一Topic保证数据一致]
+    Q2 -.-> Q2_N1[查询时间复杂度 O of 1<br/>毫秒级响应]
+    Q2_N1 -.-> Q2_N2[最强一致性: 双写MySQL+原子性快照]
+    Q2_N2 -.-> Q2_N3[优点: 极致性能 , 缺点: 实现复杂度高]
+
     style Scheme1 fill:#e1f5fe
     style Scheme2 fill:#f3e5f5
     style Scheme3 fill:#e8f5e9
     style Comparison fill:#fff3e0
     classDef note fill:#fff9c4,stroke:#f9a825,stroke-dasharray: 5 5
-    class S1_N1,S1_N2,S1_N3,S1_N4,S2_N1,S2_N2,S2_N3,S3_N1,S3_N2,U4_N1,U4_N2,Q2_N1 note
+    class S1_N1,S1_N2,S1_N3,S1_N4,S1_N5,S2_N1,S2_N2,S2_N3,U4_N1,U4_N2,Q2_N1,Q2_N2,Q2_N3 note

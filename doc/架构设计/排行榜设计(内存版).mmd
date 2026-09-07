@@ -1,0 +1,29 @@
+sequenceDiagram
+    participant C as Client
+    participant G1 as Game-1
+    participant G2 as Game-2
+    participant G3 as Game-3
+    participant K as Kafka
+    participant R as Redis
+    participant M as MySQL
+
+    C->>G1: 1. 更新分数 (UID, Delta)
+
+    activate G1
+    G1->>G1: 2. 生成全局唯一 SeqID<br/>(时间戳+节点掩码)
+    G1->>G1: 3. 加写锁更新本地内存<br/>- player.Score += Delta<br/>- player.SeqID = newSeqID<br/>- 跳表更新排名
+
+    par 异步执行 (不阻塞主流程)
+        G1-->>K: 4a. 异步发送 Kafka<br/>(UID, Score, SeqID)
+        G1-->>G2: 4b. 异步 gRPC 广播
+        G1-->>G3: 4c. 异步 gRPC 广播
+    end
+
+    G1-->>C: 5. 立即返回成功 (< 1ms)
+    deactivate G1
+
+    Note over G2,G3: 收到广播：校验 SeqID > 本地 → 更新内存
+
+    Note over K,M: Kafka 消费线程
+    K->>R: 6a. 幂等写入 Redis<br/>(校验 SeqID 防重复)
+    K->>M: 6b. 幂等写入 MySQL<br/>(校验 SeqID 防重复)

@@ -1,0 +1,47 @@
+flowchart TB
+    subgraph Client_A[用户A客户端]
+        A_App[App / Web]
+        A_Cent[Centrifugo SDK]
+        A_LK[LiveKit SDK]
+    end
+
+    subgraph Client_B[用户B客户端]
+        B_App[App / Web]
+        B_Cent[Centrifugo SDK]
+        B_LK[LiveKit SDK]
+    end
+
+    subgraph Server[你的业务后端]
+        Backend[业务逻辑<br>鉴权\房间管理]
+    end
+
+    subgraph Centrifugo[Centrifugo 信令服务]
+        Cent_HTTP[HTTP API]
+        Cent_WS[WebSocket 推送]
+    end
+
+    subgraph LiveKit[LiveKit 媒体服务]
+        LK_WS[WebSocket 信令]
+        LK_UDP[UDP 媒体转发<br>SFU]
+    end
+
+    A_App <--> Backend
+    B_App <--> Backend
+
+    Backend -- 发布信令 --> Cent_HTTP
+    Cent_HTTP --> Cent_WS
+    Cent_WS -- 推送信令 --> A_Cent
+    Cent_WS -- 推送信令 --> B_Cent
+
+    A_Cent <--> A_App
+    B_Cent <--> B_App
+
+    A_LK -- 媒体流 --> LK_UDP
+    B_LK -- 媒体流 --> LK_UDP
+    LK_UDP -- 转发媒体 --> A_LK
+    LK_UDP -- 转发媒体 --> B_LK
+
+    A_LK <-- WebRTC 信令 --> LK_WS
+    B_LK <-- WebRTC 信令 --> LK_WS
+
+    Backend -- 创建房间/获取Token --> LiveKit

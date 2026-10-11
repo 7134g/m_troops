@@ -1,0 +1,37 @@
+sequenceDiagram
+    autonumber
+    participant User as 上麦用户
+    participant Client as 客户端
+    participant Backend as 业务后端
+    participant Centrifugo as Centrifugo
+    participant LiveKit as LiveKit
+    participant Others as 房间内其他成员
+
+    Note over Client, LiveKit: 阶段一：请求上麦 & 获取 Token
+    User->>Client: 点击"上麦"
+    Client->>Backend: POST /api/voice/join {group_id}
+    Backend->>Backend: 鉴权 + 确定房间名 group-123
+    Backend->>Backend: 生成 LiveKit Token<br/>(sub=user_A, room=group-123, canPublish=true)
+    Backend-->>Client: 返回 Token
+
+    Note over Client, LiveKit: 阶段二：连接 LiveKit & 发布音频
+    Client->>LiveKit: 使用 Token 连接 wss://livekit
+    Note over LiveKit: 若房间不存在则自动创建
+    LiveKit-->>Client: 连接成功（建立订阅者 PeerConnection）
+    Note over Client: autoSubscribe=true<br/>自动订阅房间内已有轨道
+    Client->>Client: 请求麦克风权限
+    Client->>LiveKit: 发布音频轨道 (AddTrackRequest)
+    LiveKit-->>Client: TrackPublishedResponse
+    Client->>LiveKit: 建立发布者 PeerConnection + 发送 offer
+    LiveKit-->>Client: answer
+    Client->>LiveKit: 开始推送音频流 (SRTP)
+
+    Note over LiveKit, Others: 阶段三：媒体自动分发
+    LiveKit->>Others: ParticipantUpdate: 用户A发布了音频轨道
+    LiveKit->>Others: 自动将用户A的音频加入订阅
+    Others->>Others: 本地混音后播放
+
+    Note over Backend, Others: 阶段四：信令同步（Centrifugo）
+    Backend->>Centrifugo: HTTP API 发布"用户A上麦"到 group:#ID:signal
+    Centrifugo-->>Others: WebSocket 推送信令消息
+    Others->>Others: 更新 UI（显示麦克风图标等）

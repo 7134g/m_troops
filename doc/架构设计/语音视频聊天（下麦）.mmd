@@ -1,0 +1,28 @@
+sequenceDiagram
+    autonumber
+    participant User as 下麦用户
+    participant Client as 客户端
+    participant Backend as 业务后端
+    participant Centrifugo as Centrifugo
+    participant LiveKit as LiveKit
+    participant Others as 房间内其他成员
+
+    User->>Client: 点击"下麦"
+    Client->>Backend: POST /api/voice/leave {group_id}
+
+    alt 临时静音（推荐，保留在房间内）
+        Client->>LiveKit: track.mute() / setMicrophoneEnabled(false)
+        LiveKit->>Others: TrackMuted 事件
+        Others->>Others: 停止播放该用户音频<br/>（订阅关系保留）
+    else 彻底下麦（离开语音频道）
+        Client->>LiveKit: track.unpublish() / room.disconnect()
+        LiveKit->>Others: ParticipantUpdate: 轨道已移除
+        Others->>Others: 移除该用户音频轨道
+    end
+
+    Note over Backend, Others: 信令同步（Centrifugo）
+    Backend->>Centrifugo: HTTP API 发布"用户A下麦"到 group:#ID:signal
+    Centrifugo-->>Others: WebSocket 推送信令消息
+    Others->>Others: 更新 UI（移除麦克风图标等）
+
+    Backend-->>Client: 确认下麦
